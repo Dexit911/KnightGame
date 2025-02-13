@@ -2,7 +2,7 @@ import arcade
 
 
 class Animate(arcade.Sprite):
-    def __init__(self, img, scale: float = 2.0, animate_time: float = 0.1):
+    def __init__(self, img, scale: float = 2.0, animate_time: float = 10.0):
         """
         :param img:
         :param scale:
