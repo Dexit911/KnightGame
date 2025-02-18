@@ -14,25 +14,30 @@ class MovingEntity(Animate):
 
         self.update_methods = []  # List of methods that need to be updated
 
-        self.impuls = [0, 0]  # Change from tuple to list
+        self.impulse = [0, 0]  # Change from tuple to list
 
-    def impulse(self, power: int, direction: list) -> None:
+    def get_impulse(self, power: int, direction: list) -> None:
         """
         :param power: How strong the impulse is
         :param direction: What direction it has
         """
-        direction_x, direction_y = direction
-        length = math.sqrt(direction_x ** 2 + direction_y ** 2)
+        direction_x = direction[0]
+        direction_y = direction[1]
 
-        if length > 0:
-            direction_x /= length
-            direction_y /= length
-            print("calculated")
+        distance = math.sqrt(direction_x ** 2 + direction_y ** 2)
 
-        self.impuls[0] += direction_x * power
-        self.impuls[1] += direction_y * power
+        print(distance)
 
-        print("impusle")
+        if distance > 0:
+            direction_x /= distance
+            direction_y /= distance
+
+            print(f"{direction_x}, {direction_y}")
+
+        self.impulse[0] += direction_x * power
+        self.impulse[1] += direction_y * power
+        print(f"{self.impulse}")
+
 
     def add_update(self, method_or_list) -> None:
         """Adds one or multiple methods to the update list."""
@@ -48,18 +53,18 @@ class MovingEntity(Animate):
         #self.change_y = 0
 
         # Apply impulse to movement
-        self.change_x += self.impuls[0]
-        self.change_y += self.impuls[1]
+        self.change_x += self.impulse[0]
+        self.change_y += self.impulse[1]
 
         # Apply impulse decay (smooth stop)
-        self.impuls[0] *= 0.8
-        self.impuls[1] *= 0.8
+        self.impulse[0] *= 0.9
+        self.impulse[1] *= 0.9
 
         # Stop impulse completely if it's very small
-        if abs(self.impuls[0]) < 0.1:
-            self.impuls[0] = 0
-        if abs(self.impuls[1]) < 0.1:
-            self.impuls[1] = 0
+        if abs(self.impulse[0]) < 0.1:
+            self.impulse[0] = 0
+        if abs(self.impulse[1]) < 0.1:
+            self.impulse[1] = 0
 
         self.adjust_layer()
 

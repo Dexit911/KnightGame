@@ -79,6 +79,8 @@ class Game(arcade.Window):
 
         self.player.sword.draw_hit_box()
 
+        self.enemy_list.draw()
+
     def on_update(self, delta_time):
         """Update Camera"""
         self.camera.update()

@@ -7,7 +7,7 @@ from player.player import Player
 class TileMap:
     def __init__(self, game):
         self.game = game
-        self.tile_map = ["................",
+        self.tile_map = [".......",
                          ".......",
                          ".......",
                          ".......",
