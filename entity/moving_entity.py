@@ -14,30 +14,32 @@ class MovingEntity(Animate):
 
         self.update_methods = []  # List of methods that need to be updated
 
-        self.impulse = [0, 0]  # Change from tuple to list
+        self.impulse_x = 0
+        self.impulse_y = 0
 
-    def get_impulse(self, power: int, direction: list) -> None:
+    def get_impulse(self, power: int, direction: list, from_pos: list = None, invert: int = 1) -> None:
         """
         :param power: How strong the impulse is
-        :param direction: What direction it has
+        :param direction: What direction it goes from
+        :param from_pos: Instead of Calculating from self.center_pos you can apply custom
+        :param invert: If you want to invert the impulse, 1 is from, -1 is to
         """
-        direction_x = direction[0]
-        direction_y = direction[1]
+        if from_pos is None:
+            start_pos_x = self.center_x
+            start_pos_y = self.center_y
+        else:
+            start_pos_x = from_pos[0]
+            start_pos_y = from_pos[1]
 
-        distance = math.sqrt(direction_x ** 2 + direction_y ** 2)
-
-        print(distance)
-
-        if distance > 0:
-            direction_x /= distance
-            direction_y /= distance
-
-            print(f"{direction_x}, {direction_y}")
-
-        self.impulse[0] += direction_x * power
-        self.impulse[1] += direction_y * power
-        print(f"{self.impulse}")
-
+        direction_x = start_pos_x - direction[0]
+        direction_y = start_pos_y - direction[1]
+        length = math.sqrt(direction_x ** 2 + direction_y ** 2)
+        if length > 0:
+            direction_x /= length
+            direction_y /= length
+        impulse_power = power
+        self.impulse_x = direction_x * impulse_power * invert
+        self.impulse_y = direction_y * impulse_power * invert
 
     def add_update(self, method_or_list) -> None:
         """Adds one or multiple methods to the update list."""
@@ -49,25 +51,26 @@ class MovingEntity(Animate):
     def on_update(self) -> None:
         """Update happens every frame"""
         super().update()
-        #self.change_x = 0
-        #self.change_y = 0
+        self.change_x = 0
+        self.change_y = 0
 
         # Apply impulse to movement
-        self.change_x += self.impulse[0]
-        self.change_y += self.impulse[1]
+        self.center_x += self.impulse_x
+        self.center_y += self.impulse_y
 
         # Apply impulse decay (smooth stop)
-        self.impulse[0] *= 0.9
-        self.impulse[1] *= 0.9
+        self.impulse_x *= 0.9
+        self.impulse_y *= 0.9
 
         # Stop impulse completely if it's very small
-        if abs(self.impulse[0]) < 0.1:
-            self.impulse[0] = 0
-        if abs(self.impulse[1]) < 0.1:
-            self.impulse[1] = 0
+        if abs(self.impulse_x) < 0.1:
+            self.impulse_x = 0
+        if abs(self.impulse_y) < 0.1:
+            self.impulse_y = 0
 
         self.adjust_layer()
 
+        # Update every method in the list
         for method in self.update_methods:
             if callable(method):
                 method()
@@ -76,7 +79,6 @@ class MovingEntity(Animate):
         """Adjusting the layer based on sprites y cord"""
         sprite_list = self.game.moving_entities
         sprite_list.remove(self)
-        index = 0
         for i, sprite in enumerate(sprite_list):
             if self.center_y > sprite.center_y:
                 index = i

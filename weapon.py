@@ -1,5 +1,7 @@
 import arcade
 from animation import Animate
+from arcade.hitbox import HitBox
+from hitboxes import CustomHitBoxes as Ch
 
 
 class Weapon(Animate):
@@ -8,7 +10,6 @@ class Weapon(Animate):
         self.keys = set()
         self.game = game
         self.game.sprite_list.append(self)
-
 
         """Who carries the weapon"""
         self.owner = owner
@@ -19,7 +20,6 @@ class Weapon(Animate):
 
         """Damage"""
         self.dmg = dmg
-
 
         """Textures"""
         self.original_texture = arcade.load_texture(path)
@@ -33,13 +33,18 @@ class Weapon(Animate):
         self.max_attack_progress = 20
         self.start_angle = None
 
+        """CustomHitbox"""
+        self.hit_box = HitBox(Ch().sword)
+
     def update_dir(self):
+        """Turn the weapon if player turns, DOES NOT TURN HIT BOX WIWEIFWIEFHWEIOFHWEIFOQJWEJIFO"""
         if self.owner.dir[0] == "left":
             self.texture = self.original_texture
         elif self.owner.dir[0] == "right":
             self.texture = self.flipped_texture
 
     def animate_attack(self):
+        """Basic animation for hitting with sword"""
         if self.owner.dir[0] == "left":
             if self.attack_progress < self.max_attack_progress:
                 self.angle -= 15
@@ -56,6 +61,7 @@ class Weapon(Animate):
                 self.angle = 0
 
     def hit(self):
+        """Prevents spam attack"""
         if not self.attacking:
             self.attacking = True
             self.attack_progress = 0

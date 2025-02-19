@@ -7,8 +7,8 @@ class Camera:
         Initialize the Camera.
 
         :param game: Reference to the main game instance.
-        :param dead_zone_width: Width of the dead zone around the player.
-        :param dead_zone_height: Height of the dead zone around the player.
+        :param dead_zone_width: work in progress
+        :param dead_zone_height: word in progress
         :param smooth_speed: Speed of camera movement (lower = smoother).
         """
         self.game = game
@@ -24,7 +24,6 @@ class Camera:
         player_x, player_y = self.game.player.center_x, self.game.player.center_y
         camera_x, camera_y = self.camera.position
 
-        # 🔥 Fix: Correctly calculate dead zone bounds in ALL directions
         left_bound = camera_x + (self.game.width / 2) - (self.dead_zone_width / 2)
         right_bound = camera_x + (self.game.width / 2) + (self.dead_zone_width / 2)
         bottom_bound = camera_y + (self.game.height / 2) - (self.dead_zone_height / 2)
@@ -46,10 +45,8 @@ class Camera:
         new_x = arcade.math.lerp(camera_x, target_x, self.smooth_speed)
         new_y = arcade.math.lerp(camera_y, target_y, self.smooth_speed)
 
-        self.camera.position = arcade.math.Vec2(new_x, new_y)
+        self.camera.position = arcade.math.Vec2(new_x, new_y) # Apply the pos for camera
 
     def use(self):
-        """
-        Activates the camera before rendering.
-        """
+        """Builtin camera method, used for rendering"""
         self.camera.use()

@@ -10,17 +10,16 @@ from weapon import Weapon
 """
 Problems:
  * the Enemy does not have collision. Change the mode to "resting" when collid
- * change players layer based on the position from other sprites
- * adjust hit boxes for the sprites
 Implements:
- * Weapon DONE
+
  * Drop and pickup other weapon
  * Make better hitbox for hitting with sword
  
- 
- *player animation
- *impulse
- *slow idle movement enemy 
+ * Make system for adjusting layer order for obsatcles and movings sprite for better visuals
+ * slow idle movement enemy 
+ * path finding for enemies
+ * Fix pixelart filtering 
+ * MAYBE make individual animation for sword instead of rotating it
  
 """
 
@@ -30,8 +29,7 @@ class Game(arcade.Window):
         super().__init__(width=SCREEN_WIDTH, height=SCREEN_HEIGHT, title=TITLE, fullscreen=False)
 
     def setup(self):
-
-
+        print(arcade.__version__)
         """Sprite Lists"""
         self.sprite_list = arcade.SpriteList()
         self.moving_entities = arcade.SpriteList()
@@ -54,8 +52,11 @@ class Game(arcade.Window):
         """Physics"""
         self.collision_engine = arcade.PhysicsEngineSimple(self.player, self.obstacle_list)
 
+        self.mouse_x = 0
+        self.mouse_y = 0
+
     def create_tile_map(self):
-        rows = len(self.tile_map)
+        """Create Objects for different char"""
         for i, row in enumerate(self.tile_map):
             for j, column in enumerate(row):
                 Grass(self, j, i)
@@ -65,22 +66,23 @@ class Game(arcade.Window):
                     Path(self, j, i)
                 if column == "E":
                     Enemy(self, j, i)
+                if column == "B":
+                    Bush(self, j, i)
 
     def on_draw(self):
-        """Draw all sprite"""
-        self.clear()
+        """Render every frame"""
+        self.clear()  # Clear the screen every frame
         self.camera.use()
 
         """Draw all elements"""
         self.background_list.draw()
-        self.obstacle_list.draw()
         self.sprite_list.draw()
         self.moving_entities.draw()
+        self.obstacle_list.draw()
 
-        self.player.sword.draw_hit_box()
-
-
-        self.enemy_list.draw()
+        # self.player.sword.draw_hit_box()
+        self.obstacle_list.draw_hit_boxes()
+        self.player.draw_hit_box()
 
     def on_update(self, delta_time):
         """Update Camera"""
@@ -105,6 +107,12 @@ class Game(arcade.Window):
         if key in self.player.keys:
             self.player.keys.remove(key)
             self.player.sword.keys.remove(key)
+
+    def on_mouse_motion(self, x: int, y: int, dx: int, dy: int):
+        """Track mouse position"""
+        self.mouse_x = x
+        self.mouse_y = y
+        print(f"{self.mouse_x}, {self.mouse_y}")
 
 
 game = Game()
