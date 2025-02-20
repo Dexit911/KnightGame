@@ -30,13 +30,13 @@ class Enemy(MovingEntity):
         self.idle_movement_state = "resting"
         self.current_stalling_time = 0
         self.stalling_time = 0
-        self.max_steps = 20
+        self.max_steps = 0
         self.current_steps = 0
 
         self.move_vector = None
 
         # Update Methods
-        self.update_methods = [lambda: self.check_for_player(trigger_d=300),
+        self.update_methods = [lambda: self.check_for_player(trigger_d=50),
                                self.collision.update,
                                self.check_for_damage]
 
@@ -90,7 +90,7 @@ class Enemy(MovingEntity):
                 # If you rested enough
                 self.current_stalling_time = 0
                 self.stalling_time = random.randint(100, 200)
-                self.move_vector = (random.randint(-2, 2) * self.speed) / 2, (random.randint(-2, 2) * self.speed) / 2
+                self.move_vector = (random.randint(-2, 2) * self.speed), (random.randint(-2, 2) * self.speed)
                 self.change_x, self.change_y = self.move_vector
                 self.idle_movement_state = "moving"
 

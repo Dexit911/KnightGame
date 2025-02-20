@@ -20,7 +20,6 @@ class MovingEntity(Animate):
         self.impulse_x = 0
         self.impulse_y = 0
 
-
     def get_impulse(self, power: int, direction: list, from_pos: list = None, invert: int = 1) -> None:
         """
         :param power: How strong the impulse is

@@ -9,7 +9,6 @@ from weapon import Weapon
 
 """
 Problems:
- * the Enemy does not have collision. Change the mode to "resting" when collid
 Implements:
 
  * Drop and pickup other weapon
@@ -17,10 +16,22 @@ Implements:
  
  * slow idle movement enemy 
  * path finding for enemies
+ * make that the idle movement only happens in a radius, to prevent chilling around the whole map.
  * Fix pixelart filtering 
  
  * adjust layer, make the bottom hit box y coridnate for layering
  
+ * overall enemy AI, and make a good flexible enemy class.
+ 
+ Class Enemy
+ construct:
+ hp, damage, image, behaviour_mode, x, y, drop, speed.
+ 
+ Methods:
+ Path finding
+ Behaviour
+ Attack
+ On
 """
 
 
@@ -88,8 +99,8 @@ class Game(arcade.Window):
 
         """Hitboxes"""
         self.player.sword.draw_hit_box()
-        # self.obstacle_list.draw_hit_boxes()
-        # self.player.draw_hit_box()
+        self.obstacle_list.draw_hit_boxes()
+        self.player.draw_hit_box()
 
     def on_update(self, delta_time):
         """Update Camera"""
