@@ -12,7 +12,6 @@ Problems:
 Implements:
 
  * Drop and pickup other weapon
- * Make better hitbox for hitting with sword
  
  * slow idle movement enemy 
  * path finding for enemies
@@ -98,9 +97,11 @@ class Game(arcade.Window):
         self.layer_adjusted_sprites.draw()
 
         """Hitboxes"""
+        """
         self.player.sword.draw_hit_box()
         self.obstacle_list.draw_hit_boxes()
         self.player.draw_hit_box()
+        """
 
     def on_update(self, delta_time):
         """Update Camera"""

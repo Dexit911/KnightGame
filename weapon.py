@@ -7,9 +7,20 @@ from constance import *
 
 class Weapon(arcade.Sprite):
     """Parent class for all weapons"""
+
     def __init__(self, game, path, owner, hit_box, dmg, pos_offset=(0, -20), cooldown=20):
+        """
+        :param game: pass the whole game
+        :param path: give path to the texture
+        :param owner: apply to an owner
+        :param hit_box: give a hit_box
+        :param dmg: damage the weapon is dealing
+        :param pos_offset: setup individual offset to make weapon look good
+        :param cooldown: how fast the weapon hits
+        """
         super().__init__(path_or_texture=path, scale=SCALE)
 
+        """Input key list"""
         self.keys = set()
 
         """Add to group"""
@@ -109,15 +120,13 @@ class Weapon(arcade.Sprite):
                          self.owner.position[1] + self.pos_offset[1])
 
         self.update_dir()
-        #self.adjust_layer_based_on_owner()
+        # self.adjust_layer_based_on_owner()
 
         if arcade.key.SPACE in self.keys:
             self.hit()
 
         if self.attacking:
             self.update_attack_animation()
-
-
 
 
 class Sword(Weapon):
