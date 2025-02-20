@@ -11,4 +11,6 @@ TILE_MAP = ["..BWWWWWWWWWWW...",
             "..BWWWWWWWWWWW.S."]
 
 
+
+SCALE = 2
 TILE_SIZE = 64

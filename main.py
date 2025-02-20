@@ -86,11 +86,10 @@ class Game(arcade.Window):
         self.sprite_list.draw()
         self.layer_adjusted_sprites.draw()
 
-
         """Hitboxes"""
-        #self.player.sword.draw_hit_box()
-        #self.obstacle_list.draw_hit_boxes()
-        #self.player.draw_hit_box()
+        self.player.sword.draw_hit_box()
+        # self.obstacle_list.draw_hit_boxes()
+        # self.player.draw_hit_box()
 
     def on_update(self, delta_time):
         """Update Camera"""
@@ -104,6 +103,9 @@ class Game(arcade.Window):
             enemy.on_update()
 
         self.collision_engine.update()
+
+        # for sprite in self.sprite_list:
+        # sprite.on_update()
 
     def on_key_press(self, key, modifiers):
         """Handles key presses"""
@@ -120,9 +122,8 @@ class Game(arcade.Window):
         """Track mouse position"""
         self.mouse_x = x
         self.mouse_y = y
+        self.mouse_pos = [x, y]
         self.player.update_direction_based_on_mouse(x, y)
-
-
 
 
 game = Game()
