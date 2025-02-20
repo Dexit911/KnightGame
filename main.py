@@ -15,11 +15,11 @@ Implements:
  * Drop and pickup other weapon
  * Make better hitbox for hitting with sword
  
- * Make system for adjusting layer order for obsatcles and movings sprite for better visuals
  * slow idle movement enemy 
  * path finding for enemies
  * Fix pixelart filtering 
- * MAYBE make individual animation for sword instead of rotating it
+ 
+ * adjust layer, make the bottom hit box y coridnate for layering
  
 """
 
@@ -31,6 +31,8 @@ class Game(arcade.Window):
     def setup(self):
         print(arcade.__version__)
         """Sprite Lists"""
+        self.layer_adjusted_sprites = arcade.SpriteList()
+
         self.sprite_list = arcade.SpriteList()
         self.moving_entities = arcade.SpriteList()
         self.enemy_list = arcade.SpriteList()
@@ -62,12 +64,16 @@ class Game(arcade.Window):
                 Grass(self, j, i)
                 if column == "W":
                     Wall(self, j, i)
-                if column == "p":
+                if column == "P":
                     Path(self, j, i)
                 if column == "E":
                     Enemy(self, j, i)
                 if column == "B":
                     Bush(self, j, i)
+                if column == "S":
+                    BigStone(self, j, i)
+                if column == "s":
+                    SmallStone(self, j, i)
 
     def on_draw(self):
         """Render every frame"""
@@ -76,13 +82,15 @@ class Game(arcade.Window):
 
         """Draw all elements"""
         self.background_list.draw()
-        self.sprite_list.draw()
-        self.moving_entities.draw()
-        self.obstacle_list.draw()
 
-        # self.player.sword.draw_hit_box()
-        self.obstacle_list.draw_hit_boxes()
-        self.player.draw_hit_box()
+        self.sprite_list.draw()
+        self.layer_adjusted_sprites.draw()
+
+
+        """Hitboxes"""
+        #self.player.sword.draw_hit_box()
+        #self.obstacle_list.draw_hit_boxes()
+        #self.player.draw_hit_box()
 
     def on_update(self, delta_time):
         """Update Camera"""
@@ -112,7 +120,9 @@ class Game(arcade.Window):
         """Track mouse position"""
         self.mouse_x = x
         self.mouse_y = y
-        print(f"{self.mouse_x}, {self.mouse_y}")
+        self.player.update_direction_based_on_mouse(x, y)
+
+
 
 
 game = Game()

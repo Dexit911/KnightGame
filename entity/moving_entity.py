@@ -7,7 +7,10 @@ class MovingEntity(Animate):
     def __init__(self, game, img, scale=2.0, animate_time=10.0):
         super().__init__(img=img, scale=scale, animate_time=animate_time)
         self.game = game
-        self.game.moving_entities.append(self)  # Ad to entity list that handles the draw
+        # self.game.moving_entities.append(self)  # Ad to entity list that handles the draw
+        self.draw_group = self.game.layer_adjusted_sprites
+        self.draw_group.append(self)
+        self.layer_index = self.draw_group.index(self)
 
         self.dir = ["right", "down"]  # Start pos for Entity
         self.moving = False  # If the Entity is moving or not
@@ -16,6 +19,7 @@ class MovingEntity(Animate):
 
         self.impulse_x = 0
         self.impulse_y = 0
+
 
     def get_impulse(self, power: int, direction: list, from_pos: list = None, invert: int = 1) -> None:
         """
@@ -68,7 +72,9 @@ class MovingEntity(Animate):
         if abs(self.impulse_y) < 0.1:
             self.impulse_y = 0
 
+        # Adjust layer order, check index
         self.adjust_layer()
+        self.layer_index = self.draw_group.index(self)
 
         # Update every method in the list
         for method in self.update_methods:
@@ -77,7 +83,7 @@ class MovingEntity(Animate):
 
     def adjust_layer(self) -> None:
         """Adjusting the layer based on sprites y cord"""
-        sprite_list = self.game.moving_entities
+        sprite_list = self.draw_group
         sprite_list.remove(self)
         for i, sprite in enumerate(sprite_list):
             if self.center_y > sprite.center_y:
@@ -92,6 +98,6 @@ class MovingEntity(Animate):
         Removes entity safely from lists and deletes it.
         Use it instead of builtin kill()
         """
-        if self in self.game.moving_entities:
-            self.game.moving_entities.remove(self)
+        if self in self.draw_group:
+            self.draw_group.remove(self)
         self.kill()  # Remove from the game

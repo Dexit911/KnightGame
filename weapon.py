@@ -9,7 +9,7 @@ class Weapon(Animate):
         super().__init__(path)
         self.keys = set()
         self.game = game
-        self.game.sprite_list.append(self)
+        self.game.layer_adjusted_sprites.append(self)
 
         """Who carries the weapon"""
         self.owner = owner
@@ -66,13 +66,65 @@ class Weapon(Animate):
             self.attacking = True
             self.attack_progress = 0
 
+    def weapon_push(self):
+        pass
+
+    def adjust_layer_based_on_owner(self):
+        draw_group = self.game.layer_adjusted_sprites
+        draw_group.remove(self)
+        if self.owner.dir[1] == "down":
+            draw_group.insert(self.owner.layer_index + 1, self)
+        else:
+            draw_group.insert(self.owner.layer_index - 1, self)
+
     def on_update(self):
         super().update()
         self.position = (self.owner.position[0] + self.pos_offset[0],
                          self.owner.position[1] + self.pos_offset[1])
         self.update_dir()
 
+        # self.adjust_layer_based_on_owner()
+
         if self.attacking:
             self.animate_attack()
         if arcade.key.SPACE in self.keys:
             self.hit()
+
+
+class WWeapon(arcade.Sprite):
+    def __init__(self, game, path, owner, pos_offset, hit_box, dmg):
+        super().__init__(path_or_texture=path)
+        """Add to group"""
+        self.game = game
+        self.draw_group = self.game.layer_adjusted_sprites
+        self.update_group = None
+
+        """Who owns the weapon"""
+        self.owner = owner
+
+        """Position"""
+        self.pos_offset = pos_offset
+        self.position = self.owner.position
+        self.hit_box = HitBox(hit_box)
+
+        """Damage"""
+        self.dmg = dmg
+
+        """Texture"""
+        self.original_image = arcade.load_texture(path)
+        self.flipped_image = self.original_image.flip_horizontally()
+
+        """Weapon state"""
+        self.attacking = False
+
+    def on_update(self):
+        super().update()
+
+        self.position = (self.owner.position[0] + self.pos_offset[0],
+                         self.owner.position[1] + self.pos_offset[1])
+
+
+
+
+
+
