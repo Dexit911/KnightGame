@@ -2,15 +2,15 @@ import arcade
 
 
 class Animate(arcade.Sprite):
-    def __init__(self, img, scale: float = 2.0, animate_time: float = 10.0):
+    def __init__(self, animate_time) # img, scale: float = 2.0, animate_time: float = 10.0):
         """
         :param img: takes image path
         :param scale: how big the scale is
         :param animate_time: how time between each frame
         """
 
-        texture = arcade.load_texture(img)
-        super().__init__(texture, scale)
+        # texture = arcade.load_texture(img)
+        # super().__init__(texture, scale)
         self.i = 0
         self.time = 0
         self.animate_time = animate_time
