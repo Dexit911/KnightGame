@@ -1,13 +1,80 @@
 import arcade
 import math
+
+from arcade import Texture
+
+import KnightGame.animation as animation
 from constance import *
-from animation import Animate
 from weapon import *
 from entity.moving_entity import MovingEntity
 from hitboxes import CustomHitBoxes as Ch
 from arcade.hitbox import HitBox
 
+class My_Player(animation.Animate):
+    def __init__(self, game):
+        super().__init__("source/player/idleAni1/Idle1.1.png", game=game)
+        self.center_x, self.center_y = 100, 100
+        self.speed = 1
+        self.weapon = None
+        self.is_alive = True
+        self.health = 100
+        self.stamina = 100
+        self.strange = 5
+        self.direction = "right"
+        
+        # self.position = {
+        #     "x": self.center_x,
+        #     "y": self.center_y
+        # }
 
+        self.idle_textures = {
+            "right": [],
+            "left": [],
+            "up": [],
+            "down": [],
+            "idontknow": [],
+            "idontknow_flipped": []
+        }
+    
+    def set_up(self):
+        self.append_textures()
+    
+    def append_textures(self):
+        pass
+    
+    def pick_up_weapon(self, weapon):
+        self.weapon = weapon
+    
+    def drop_weapon(self):
+        self.weapon = None
+    
+    async def movement(self, key, modifiers):
+        """Input for movement"""
+        match key:
+            case arcade.key.A:
+                self.go_left
+            case arcade.key.D:
+                self.go_right
+            case arcade.key.W:
+                self.go_up()
+            case arcade.key.S:
+                self.go_down()
+            
+            case arcade.key.E:
+                self.dash()
+    
+    def interaction_with_map(self):
+        pass
+    
+    def update(self):
+        if self.is_alive:
+            self.center_x += self.change_x
+            self.center_y += self.change_y
+            
+            if self.health <= 0:
+                self.is_alive = False
+        
+        
 class Player(MovingEntity):
     def __init__(self, game):
         super().__init__(img="source/player/idleAni1/Idle1.1.png", game=game)
@@ -15,21 +82,24 @@ class Player(MovingEntity):
 
         self.speed = 1
         self.keys = set()
-
+        self.position = {"x": self.center_x, "y": self.center_y}
+        
         """Needs improvement, better storing"""
-        self.idle1_frames = []
-        self.idle1_fframes = []
-        self.idle2_frames = []
-        self.idle2_fframes = []
-        self.idle3_frames = []
-        self.idle3_fframes = []
+        self.idle_textures = {
+            "idle1": [],
+            "idle1_flip": [],
+            "idle2": [],
+            "idle2_flip": [],
+            "idle3": [],
+            "idle3_flip": []
+        }
 
         # Set the right textures
         self.change_texture()
 
         # Apply weapon
         #self.sword = Weapon(self.game, self, dmg=10, path="source/weapon/sword.png")
-        self.sword = Sword(self.game, self)
+        self.sword = None
 
 
         # Add all update methods to the list
@@ -104,10 +174,13 @@ class Player(MovingEntity):
 
     def dash(self):
         """Makes character dash, by applying impulse"""
-        mouse_pos = [self.game.mouse_x,
-                     self.game.mouse_y]
-
-        start_pos = [SCREEN_WIDTH / 2,
-                     SCREEN_HEIGHT / 2]
-
-        self.get_impulse(10, mouse_pos, start_pos, invert=-1)
+        self.change_x *= 2
+        self.change_y *= 2
+        
+        # mouse_pos = [self.game.mouse_x,
+        #              self.game.mouse_y]
+        #
+        # start_pos = [SCREEN_WIDTH / 2,
+        #              SCREEN_HEIGHT / 2]
+        #
+        # self.get_impulse(10, mouse_pos, start_pos, invert=-1)
