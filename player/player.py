@@ -21,6 +21,7 @@ class My_Player(animation.Animate):
         self.stamina = 100
         self.strange = 5
         self.direction = "right"
+        self.dash_time = 1.8
         
         # self.position = {
         #     "x": self.center_x,
