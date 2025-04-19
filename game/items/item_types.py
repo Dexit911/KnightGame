@@ -1,0 +1,5 @@
+WEAPON = "weapon"
+FOOD = "food"
+ARMOR = "armor"
+CURRENCY = "currency"
+ASSET_PATH = "source/items/"

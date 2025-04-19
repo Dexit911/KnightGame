@@ -1,11 +1,11 @@
 import arcade
 import itertools
-from constance import *
-from player.player import *
-from object.objects import *
-from camera import *
-from enemy.enemy import Enemy
-from weapon import Weapon
+from core.constance import *
+from game.player.player import *
+from game.object.object import *
+from core.camera import *
+from game.enemy.enemy import Enemy
+from game.weapon.weapon import Weapon
 
 """
 Problems:
@@ -38,6 +38,19 @@ class Game(arcade.Window):
     def __init__(self):
         super().__init__(width=SCREEN_WIDTH, height=SCREEN_HEIGHT, title=TITLE, fullscreen=False)
 
+        self.tile_mapping = {
+            "P": Path,
+            "E": Enemy,
+            "B": Bush,
+            "S": BigStone,
+            "s": SmallStone,
+            "W": HighWall,
+            "w": Wall,
+            ">": StoneStairs,
+            "^": SmallPole,
+            "r": RuneStone
+        }
+
     def setup(self):
         print(arcade.__version__)
         """Sprite Lists"""
@@ -48,6 +61,8 @@ class Game(arcade.Window):
         self.enemy_list = arcade.SpriteList()
         self.obstacle_list = arcade.SpriteList()
         self.background_list = arcade.SpriteList()
+
+        self.item_list = arcade.SpriteList()
 
         """Map"""
         self.tile_map = TILE_MAP
@@ -71,19 +86,10 @@ class Game(arcade.Window):
         """Create Objects for different char"""
         for i, row in enumerate(self.tile_map):
             for j, column in enumerate(row):
-                Grass(self, j, i)
-                if column == "W":
-                    Wall(self, j, i)
-                if column == "P":
-                    Path(self, j, i)
-                if column == "E":
-                    Enemy(self, j, i)
-                if column == "B":
-                    Bush(self, j, i)
-                if column == "S":
-                    BigStone(self, j, i)
-                if column == "s":
-                    SmallStone(self, j, i)
+                if column != "#":
+                    Grass(self, j, i)
+                if column in self.tile_mapping:
+                    self.tile_mapping[column](self, j, i)
 
     def on_draw(self):
         """Render every frame"""
@@ -92,16 +98,17 @@ class Game(arcade.Window):
 
         """Draw all elements"""
         self.background_list.draw()
+        self.item_list.draw()
 
         self.sprite_list.draw()
         self.layer_adjusted_sprites.draw()
 
         """Hitboxes"""
-        """
-        self.player.sword.draw_hit_box()
+
+        """self.player.sword.draw_hit_box()
         self.obstacle_list.draw_hit_boxes()
         self.player.draw_hit_box()
-        """
+        self.item_list.draw_hit_boxes()"""
 
     def on_update(self, delta_time):
         """Update Camera"""
@@ -114,6 +121,9 @@ class Game(arcade.Window):
         for enemy in self.enemy_list:
             enemy.on_update()
 
+        for item in self.item_list:
+            item.on_update()
+
         self.collision_engine.update()
 
         # for sprite in self.sprite_list:
@@ -122,13 +132,13 @@ class Game(arcade.Window):
     def on_key_press(self, key, modifiers):
         """Handles key presses"""
         self.player.keys.add(key)
-        self.player.sword.keys.add(key)
+        self.player.weapon.keys.add(key)
 
     def on_key_release(self, key, modifiers):
         """Handles key releases"""
         if key in self.player.keys:
             self.player.keys.remove(key)
-            self.player.sword.keys.remove(key)
+            self.player.weapon.keys.remove(key)
 
     def on_mouse_motion(self, x: int, y: int, dx: int, dy: int):
         """Track mouse position"""
