@@ -2,8 +2,8 @@ import random
 
 import arcade
 
-from game.weapon.weapon import *
 from game.weapon.throwables import ThrowingKnife
+from game.weapon.throwables import ClassicSword
 from core.moving_entity import MovingEntity
 from core.hitboxes import CustomHitBoxes as Ch
 from core.utils.path_manager import PathManager as Pm
@@ -34,14 +34,12 @@ class Player(MovingEntity):
         }
 
         """Weapon"""
-        self.weapon_classes = [IronSword, ClassicSword, BrokenSword, RedSword,
-                               DoubleBigIronAxe, IronLongAxe,
-                               WoodClub, ShortStick,
-                               Dagger]
+        self.weapon_classes = [ClassicSword]
         self.weapon_index = 0
         self.weapon = self.weapon_classes[self.weapon_index](self.game, self)
 
-        self.thrown_weapons = []
+        self.thrown_classes = [ThrowingKnife]
+
 
         """Inventory """
         self.inv = {"coin": 0}
@@ -129,11 +127,11 @@ class Player(MovingEntity):
             self.cooldowns.reset("weapon_switch")
 
         if arcade.key.Q in self.keys and self.cooldowns.ready("throw"):
-            knife = ThrowingKnife(self.game, self)
-            self.thrown_weapons.append(knife)
-            knife.launch()
-
+            knife = self.thrown_classes[0]
+            knife(self.game, self).launch()
             self.cooldowns.reset("throw")
+
+
 
     def update_direction_based_on_mouse(self, mouse_x, mouse_y):
         new_horizontal = "right" if mouse_x > SCREEN_WIDTH / 2 else "left"
@@ -189,5 +187,3 @@ class Player(MovingEntity):
     def weapon_update(self):
         if self.weapon:
             self.weapon.on_update()
-
-        self.thrown_weapons = [k for k in self.thrown_weapons if k.alive]

@@ -27,6 +27,6 @@ class Camera:
     def use(self):
         self.camera.use()
 
-    def start_shake(self, duration, strength):
+    def start_shake(self, duration=0.1, strength=3):
         self.shake_timer = duration
         self.shake_strength = strength

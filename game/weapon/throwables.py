@@ -1,13 +1,17 @@
 import arcade
+import random
 from core.utils.path_manager import PathManager as Pm
 from core.utils.vector_manager import VectorManager as Vm
+from core.utils.easing import Easing
 from core.hitboxes import CustomHitBoxes as Ch
 from core.constance import *
+
+from game.weapon import weapon_data
 
 
 class WeaponTest(arcade.Sprite):
 
-    def __init__(self, game, path, owner, hit_box, dmg, cooldown=20, power=5, shake=(0.1, 3)):
+    def __init__(self, game, path, owner, hit_box, dmg, cooldown=20, recoil=5, shake=(0.1, 3)):
         """
         :param game: pass the whole game
         :param path: give path to the texture
@@ -21,7 +25,7 @@ class WeaponTest(arcade.Sprite):
         """Connect to game, draw and update group"""
         # Update
         self.game = game
-        self.update_group = self.game.sprite_list
+        self.update_group = self.game.weapon_list
         self.update_group.append(self)
         # Draw
         self.draw_group = self.game.layer_adjusted_sprites
@@ -45,7 +49,7 @@ class WeaponTest(arcade.Sprite):
         """Stats"""
         self.dmg = dmg
         self.cooldown = cooldown
-        self.power = power
+        self.recoil = recoil
         self.shake = shake
 
         """State"""
@@ -55,7 +59,7 @@ class WeaponTest(arcade.Sprite):
         from_x = SCREEN_WIDTH / 2
         from_y = SCREEN_HEIGHT / 2
         self.owner.get_impulse(
-            2,
+            self.recoil,
             self.game.mouse_pos,
             invert=-1,
             from_pos=[from_x, from_y])
@@ -68,8 +72,7 @@ class WeaponTest(arcade.Sprite):
         if not self.alive:
             self.die()
 
-
-        self.center_x += self.center_x
+        super().update()
 
     def add_update(self, method_or_list) -> None:
         """Adds one or multiple methods to the update list."""
@@ -87,17 +90,100 @@ class WeaponTest(arcade.Sprite):
         self.kill()
 
 
+class Melee(WeaponTest):
+    def __init__(self, game, owner, config: dict):
+        super().__init__(
+            game=game,  # Connect to game
+            owner=owner,  # Connect ot owner
+            path=config.get("texture_path"),  # Set texture
+            hit_box=Ch().sword,  # Apply hit-box
+            dmg=config.get("damage"),  # Set the dmg
+            cooldown=config.get("cooldown"),  # Set the cooldown on hit
+            recoil=config.get("recoil"),  # Set the recoil
+        )
+        self.keys = set()
+
+        """Melee exclusive"""
+        self.knockback = config.get("knockback")  # How strong knockback the enemy is getting
+        self.attack_style = config.get("attack_style")  # Style affects the hit pattern and animation
+        self.attack_radius = config.get("attack_radius")  # How far the weapon is reaching
+        """Texture"""
+        self.original_texture = arcade.load_texture(config.get("texture_path"))
+        self.flipped_texture = self.original_texture.flip_horizontally()
+        """Sounds"""
+        self.sounds = {
+            "hit": [arcade.load_sound(Pm.common_sound(f"Hit{i}.wav")) for i in range(1, 3)]
+        }
+
+        """Pos"""
+        self.offset_pos = config.get("offset_pos")
+        self.shake = config.get("shake_effect")
+
+        """State"""
+        self.attacking = False
+        self.attack_progress = 0  # Total duration for the attack animation
+        self.start_angle = 0  # starting rotation
+        self.end_angle = 140  # ending rotation
+        self.angle = 0  # current angle
+
+        self.add_update(self.update_methods_test)
+
+    def hit(self):
+        if not self.attacking:
+            self.attacking = True
+            arcade.play_sound(random.choice(self.sounds.get("hit")))
+            self.recoil_impulse()
+            self.game.camera.start_shake(strength=self.shake)
+
+    def update_dir(self):
+        if self.owner.dir[0] == "left":
+            self.texture = self.original_texture
+        elif self.owner.dir[0] == "right":
+            self.texture = self.flipped_texture
+
+    def follow_owner(self):
+        self.position = Vm.add_vec2(self.owner.position, self.offset_pos)
+
+    def update_attack_animation(self):
+        if self.attacking:
+            if self.owner.dir[0] == "left":
+                invert = -1
+            else:
+                invert = 1
+
+            self.attack_progress += 1
+            progress = min(self.attack_progress / self.cooldown, 1)
+
+            # Use the custom easing
+            eased = Easing.swing_and_return(progress)
+
+            self.angle = self.start_angle + (self.end_angle - self.start_angle) * eased * invert
+
+            if progress >= 1:
+                self.attacking = False
+                self.attack_progress = 0
+                self.angle = self.start_angle
+
+    def update_methods_test(self):
+
+        self.follow_owner()
+        print("working")
+        self.update_dir()
+
+        if arcade.key.SPACE in self.keys: self.hit()
+        if self.attacking: self.update_attack_animation()
+
+
 class Throwables(WeaponTest):
-    def __init__(self, game, path, owner, dmg, cooldown=20):
+    def __init__(self, game, path, owner, dmg, cooldown=20, speed=20, recoil=5):
         hit_box = Ch().default
-        power = 5
         super().__init__(
             game=game,
             path=path,
             owner=owner,
             hit_box=hit_box,
             # Stats
-            dmg=dmg, cooldown=cooldown, power=power
+            dmg=dmg, cooldown=cooldown, recoil=recoil
         )
 
         """InputKeys"""
@@ -113,8 +199,8 @@ class Throwables(WeaponTest):
         """Stats"""
         self.dmg = dmg
         self.cooldown = cooldown
-        self.power = power
-        self.speed = 5
+        self.recoil = recoil
+        self.speed = speed
 
         """UpdateMethods"""
         self.update_methods = [
@@ -124,10 +210,16 @@ class Throwables(WeaponTest):
     def launch(self):
         """Launch towards mouse"""
         self.recoil_impulse()
-        print("launched")
-        launch_direction = Vm.from_center_to(self.game.mouse_x, self.game.mouse_y)
-        self.change_x, self.change_y = launch_direction[0] * self.speed, launch_direction[1] * self.speed
-        print(f"x: {self.change_x}, y: {self.change_y}")
+        # Get target position
+        target_pos = self.game.mouse_pos
+
+        # Calculate launch and angle direction
+        launch_direction = Vm.from_center_to(target_pos)
+        angle = Vm.get_angle_from_center_to(target_pos)
+
+        # Apply the changes
+        self.velocity = Vm.scale_vec2(launch_direction, self.speed)
+        self.angle = angle - 90
 
     def check_for_collision(self):
         """Destroy it when hitting a wall"""
@@ -144,6 +236,19 @@ class ThrowingKnife(Throwables):
             game=game,
             path=Pm.weapon_img("throwable", "ThrowingKnife.png"),
             owner=owner,
+
             # Stats
-            dmg=5, cooldown=10
+            dmg=5,
+            cooldown=10,
+            speed=20,
+            recoil=2
+        )
+
+
+class ClassicSword(Melee):
+    def __init__(self, game, owner):
+        super().__init__(
+            game=game,
+            owner=owner,
+            config=weapon_data.CLASSIC_SWORD
         )

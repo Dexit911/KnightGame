@@ -6,11 +6,6 @@ from core.hitboxes import CustomHitBoxes as Ch
 from core.constance import *
 
 
-
-
-
-
-
 class Weapon(arcade.Sprite):
     """Parent class for all weapons"""
 

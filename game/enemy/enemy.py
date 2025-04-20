@@ -68,7 +68,7 @@ class Enemy(MovingEntity):
         # self.color = (255, 255, 255)  # ERROR
         self.hp -= weapon.dmg  # Reduce HP
         #arcade.play_sound(random.choice(self.sounds.get("hurt")))  # Play sound
-        self.get_impulse(weapon.power, [weapon.center_x, weapon.center_y])  # Get knockback
+        self.get_impulse(weapon.knockback, [weapon.center_x, weapon.center_y])  # Get knockback
 
     """Stopped working after migrating to MovingEntity parent class"""
 

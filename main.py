@@ -1,4 +1,5 @@
 import arcade
+
 print(arcade.__version__)
 import itertools
 from core.constance import *
@@ -56,14 +57,15 @@ class Game(arcade.Window):
         print(arcade.__version__)
         """Sprite Lists"""
         self.layer_adjusted_sprites = arcade.SpriteList()
-
         self.sprite_list = arcade.SpriteList()
         self.moving_entities = arcade.SpriteList()
         self.enemy_list = arcade.SpriteList()
+
         self.obstacle_list = arcade.SpriteList()
         self.background_list = arcade.SpriteList()
 
         self.item_list = arcade.SpriteList()
+        self.weapon_list = arcade.SpriteList()
 
         """Map"""
         self.tile_map = TILE_MAP
@@ -119,11 +121,11 @@ class Game(arcade.Window):
         self.player.on_update()
 
         """Update Enemies"""
-        for enemy in self.enemy_list:
-            enemy.on_update()
+        for enemy in self.enemy_list: enemy.on_update()
+        for item in self.item_list: item.on_update()
+        for weapon in self.weapon_list: weapon.on_update()
 
-        for item in self.item_list:
-            item.on_update()
+
 
         self.collision_engine.update()
 
@@ -145,7 +147,8 @@ class Game(arcade.Window):
         """Track mouse position"""
         self.mouse_x = x
         self.mouse_y = y
-        self.mouse_pos = [x, y]
+        self.mouse_pos = (x, y)
+
         self.player.update_direction_based_on_mouse(x, y)
 
 
