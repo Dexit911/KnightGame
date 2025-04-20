@@ -6,6 +6,11 @@ from core.hitboxes import CustomHitBoxes as Ch
 from core.constance import *
 
 
+
+
+
+
+
 class Weapon(arcade.Sprite):
     """Parent class for all weapons"""
 
@@ -71,7 +76,7 @@ class Weapon(arcade.Sprite):
             progress = min(self.attack_progress / self.cooldown_time, 1)
 
             # Use the custom easing
-            eased = Easing.swing_linear_return(progress)
+            eased = Easing.swing_and_return(progress)
 
             self.angle = self.start_angle + (self.end_angle - self.start_angle) * eased * invert
 
@@ -132,43 +137,86 @@ class Weapon(arcade.Sprite):
             self.update_attack_animation()
 
 
-class Sword(Weapon):
+"""Sword"""
+
+
+class ClassicSword(Weapon):
     def __init__(self, game, owner):
         super().__init__(game=game,
-                         path=Pm.weapon_img("Sword.png"),
+                         path=Pm.weapon_img("sword", "ClassicSword.png"),
                          owner=owner,
                          hit_box=Ch().sword,
                          dmg=10,
-                         cooldown=50,
+                         cooldown=25,
                          power=5)
 
 
-class SmallAxe(Weapon):
+class BrokenSword(Weapon):
     def __init__(self, game, owner):
         super().__init__(game=game,
-                         path=Pm.weapon_img("SmallAxe.png"),
+                         path=Pm.weapon_img("sword", "BrokenSword.png"),
                          owner=owner,
                          hit_box=Ch().sword,
-                         dmg=5,
-                         cooldown=40,
+                         dmg=2,
+                         cooldown=60,
+                         power=2)
+
+
+class IronSword(Weapon):
+    def __init__(self, game, owner):
+        super().__init__(
+            game=game,
+            path=Pm.weapon_img("sword", "IronSword.png"),
+            owner=owner,
+            hit_box=Ch().sword,
+
+            dmg=5, cooldown=50, power=3
+        )
+
+
+class RedSword(Weapon):
+    def __init__(self, game, owner):
+        super().__init__(game=game,
+                         path=Pm.weapon_img("sword", "RedSword.png"),
+                         owner=owner,
+                         hit_box=Ch().sword,
+                         dmg=4,
+                         cooldown=20,
+                         power=2)
+
+
+"""AXES"""
+
+
+class DoubleBigIronAxe(Weapon):
+    def __init__(self, game, owner):
+        super().__init__(game=game,
+                         path=Pm.weapon_img("axe", "DoubleBigIronAxe.png"),
+                         owner=owner,
+                         hit_box=Ch().sword,
+                         dmg=15,
+                         cooldown=80,
+                         power=6)
+
+
+class IronLongAxe(Weapon):
+    def __init__(self, game, owner):
+        super().__init__(game=game,
+                         path=Pm.weapon_img("axe", "IronLongAxe.png"),
+                         owner=owner,
+                         hit_box=Ch().sword,
+                         dmg=10,
+                         cooldown=70,
                          power=3)
 
 
-class BigDoubleAxe(Weapon):
-    def __init__(self, game, owner):
-        super().__init__(game=game,
-                         path=Pm.weapon_img("BigDoubleAxe.png"),
-                         owner=owner,
-                         hit_box=Ch().sword,
-                         dmg=5,
-                         cooldown=40,
-                         power=3)
+"""Blunt"""
 
 
 class WoodClub(Weapon):
     def __init__(self, game, owner):
         super().__init__(game=game,
-                         path=Pm.weapon_img("WoodClub.png"),
+                         path=Pm.weapon_img("blunt", "WoodClub.png"),
                          owner=owner,
                          hit_box=Ch().sword,
                          dmg=2,
@@ -179,9 +227,23 @@ class WoodClub(Weapon):
 class ShortStick(Weapon):
     def __init__(self, game, owner):
         super().__init__(game=game,
-                         path=Pm.weapon_img("ShortStick.png"),
+                         path=Pm.weapon_img("blunt", "ShortStick.png"),
                          owner=owner,
                          hit_box=Ch().sword,
                          dmg=1,
                          cooldown=60,
                          power=2)
+
+
+"""Dagger"""
+
+
+class Dagger(Weapon):
+    def __init__(self, game, owner):
+        super().__init__(game=game,
+                         path=Pm.weapon_img("dagger", "Dagger.png"),
+                         owner=owner,
+                         hit_box=Ch().sword,
+                         dmg=1,
+                         cooldown=10,
+                         power=1)

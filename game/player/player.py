@@ -1,4 +1,9 @@
+import random
+
+import arcade
+
 from game.weapon.weapon import *
+from game.weapon.throwables import ThrowingKnife
 from core.moving_entity import MovingEntity
 from core.hitboxes import CustomHitBoxes as Ch
 from core.utils.path_manager import PathManager as Pm
@@ -21,13 +26,22 @@ class Player(MovingEntity):
         self.idle2_fframes = []
         self.idle3_frames = []
         self.idle3_fframes = []
-        self.sounds = {"dash": [arcade.load_sound(Pm.sound("player", f"Dash{i}.wav")) for i in range(1, 3)]}
         self.change_texture()
 
+        self.sounds = {
+            "dash": [arcade.load_sound(Pm.sound("player", f"Dash{i}.wav")) for i in range(1, 3)],
+            "weapon_switch": [arcade.load_sound(Pm.sound("player", f"WeaponChange{i}.wav")) for i in range(1, 3)]
+        }
+
         """Weapon"""
-        self.weapon_classes = [ShortStick, BigDoubleAxe, WoodClub, Sword, SmallAxe]
+        self.weapon_classes = [IronSword, ClassicSword, BrokenSword, RedSword,
+                               DoubleBigIronAxe, IronLongAxe,
+                               WoodClub, ShortStick,
+                               Dagger]
         self.weapon_index = 0
         self.weapon = self.weapon_classes[self.weapon_index](self.game, self)
+
+        self.thrown_weapons = []
 
         """Inventory """
         self.inv = {"coin": 0}
@@ -36,6 +50,7 @@ class Player(MovingEntity):
         self.cooldowns = CooldownManager()
         self.cooldowns.add("dash", 30)
         self.cooldowns.add("weapon_switch", 15)
+        self.cooldowns.add("throw", 50)
 
         """Update Methods"""
         self.update_methods = [
@@ -110,7 +125,15 @@ class Player(MovingEntity):
 
         if arcade.key.R in self.keys and self.cooldowns.ready("weapon_switch"):
             self.change_weapon()
+            arcade.play_sound(random.choice(self.sounds.get("weapon_switch")), volume=1)
             self.cooldowns.reset("weapon_switch")
+
+        if arcade.key.Q in self.keys and self.cooldowns.ready("throw"):
+            knife = ThrowingKnife(self.game, self)
+            self.thrown_weapons.append(knife)
+            knife.launch()
+
+            self.cooldowns.reset("throw")
 
     def update_direction_based_on_mouse(self, mouse_x, mouse_y):
         new_horizontal = "right" if mouse_x > SCREEN_WIDTH / 2 else "left"
@@ -166,3 +189,5 @@ class Player(MovingEntity):
     def weapon_update(self):
         if self.weapon:
             self.weapon.on_update()
+
+        self.thrown_weapons = [k for k in self.thrown_weapons if k.alive]

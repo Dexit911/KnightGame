@@ -14,7 +14,12 @@ class PathManager:
     def sound(*path):
         return os.path.join(PathManager.ASSETS_DIR, "sound", *path)
 
+    @staticmethod
+    def player_sound(*path):
+        return PathManager.sound("player", *path)
+
     """Sub-path methods, ad more if needed /IMG"""
+
     @staticmethod
     def weapon_img(*name):
         return PathManager.img("weapon", *name)

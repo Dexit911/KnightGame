@@ -1,4 +1,5 @@
 import arcade
+print(arcade.__version__)
 import itertools
 from core.constance import *
 from game.player.player import *
