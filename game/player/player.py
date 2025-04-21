@@ -3,7 +3,7 @@ import random
 import arcade
 
 from game.weapon.throwables import ThrowingKnife
-from game.weapon.throwables import ClassicSword
+from game.weapon.weapon import ClassicSword, IronLongAxe, RedSword
 from core.moving_entity import MovingEntity
 from core.hitboxes import CustomHitBoxes as Ch
 from core.utils.path_manager import PathManager as Pm
@@ -17,6 +17,7 @@ class Player(MovingEntity):
         self.hit_box = Ch().player
 
         self.speed = 1
+        self.dash_power = 15
         self.keys = set()
 
         """Texture and sound"""
@@ -34,11 +35,16 @@ class Player(MovingEntity):
         }
 
         """Weapon"""
-        self.weapon_classes = [ClassicSword]
+        self.weapon_classes = [
+            ClassicSword,
+            IronLongAxe,
+            RedSword,
+
+        ]
         self.weapon_index = 0
         self.weapon = self.weapon_classes[self.weapon_index](self.game, self)
 
-        self.thrown_classes = [ThrowingKnife]
+        self.thrown_classes = []
 
 
         """Inventory """
@@ -90,8 +96,7 @@ class Player(MovingEntity):
         self.change_y = -self.speed
 
     def setup(self):
-        self.center_x = 100
-        self.center_y = 100
+        self.position = (0, 0)
         self.setup_textures()
 
     def change_texture(self):
@@ -134,6 +139,8 @@ class Player(MovingEntity):
 
 
     def update_direction_based_on_mouse(self, mouse_x, mouse_y):
+
+
         new_horizontal = "right" if mouse_x > SCREEN_WIDTH / 2 else "left"
         new_vertical = "up" if mouse_y > SCREEN_HEIGHT / 2 else "down"
 
@@ -155,7 +162,7 @@ class Player(MovingEntity):
                      SCREEN_HEIGHT / 2]
 
         # arcade.play_sound(self.sounds["dash"])
-        self.get_impulse(10, mouse_pos, start_pos, invert=-1)
+        self.get_impulse(self.dash_power, mouse_pos, start_pos, invert=-1)
 
     def check_item_picked_up(self):
         hit_list = arcade.check_for_collision_with_list(self, self.game.item_list)

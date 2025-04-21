@@ -1,4 +1,5 @@
 from arcade.hitbox import HitBox as HB
+from core.utils.hitbox_manager import HitboxManager
 
 
 class CustomHitBoxes:
@@ -47,6 +48,7 @@ class CustomHitBoxes:
             (10, -15),
             (-10, -15)
         ])
+
 
         self.item = HB([
             (-10 + x, -10 + y),  # Down left corner

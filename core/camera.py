@@ -1,5 +1,6 @@
 import arcade
 import random
+from core.constance import *
 
 
 class Camera:
@@ -30,3 +31,11 @@ class Camera:
     def start_shake(self, duration=0.1, strength=3):
         self.shake_timer = duration
         self.shake_strength = strength
+
+    def get_mouse_world(self, screen_position: tuple) -> tuple:
+        half_width = SCREEN_WIDTH / 2
+        half_height = SCREEN_HEIGHT / 2
+        return (
+            screen_position[0] - half_width + self.camera.position.x,
+            screen_position[1] - half_height + self.camera.position.y
+        )

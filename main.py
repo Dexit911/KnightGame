@@ -7,6 +7,7 @@ from game.player.player import *
 from game.object.object import *
 from core.camera import *
 from game.enemy.enemy import Enemy
+import time
 from game.weapon.weapon import Weapon
 
 """
@@ -84,6 +85,9 @@ class Game(arcade.Window):
 
         self.mouse_x = 0
         self.mouse_y = 0
+        self.mouse_pos = (self.mouse_x, self.mouse_y)
+
+        self.mouse_world = self.camera.get_mouse_world(self.mouse_pos)
 
     def create_tile_map(self):
         """Create Objects for different char"""
@@ -108,14 +112,21 @@ class Game(arcade.Window):
 
         """Hitboxes"""
 
-        """self.player.sword.draw_hit_box()
         self.obstacle_list.draw_hit_boxes()
         self.player.draw_hit_box()
-        self.item_list.draw_hit_boxes()"""
+        self.item_list.draw_hit_boxes()
+        self.enemy_list.draw_hit_boxes()
+
+        for weapon in self.weapon_list:
+            weapon.ghost_hitbox.draw_hit_box(color=arcade.color.RED)
 
     def on_update(self, delta_time):
+
         """Update Camera"""
         self.camera.update()
+
+        """Update Mouse cord"""
+        self.mouse_world = self.camera.get_mouse_world(self.mouse_pos)
 
         """Update Player"""
         self.player.on_update()
@@ -124,8 +135,6 @@ class Game(arcade.Window):
         for enemy in self.enemy_list: enemy.on_update()
         for item in self.item_list: item.on_update()
         for weapon in self.weapon_list: weapon.on_update()
-
-
 
         self.collision_engine.update()
 
@@ -141,7 +150,7 @@ class Game(arcade.Window):
         """Handles key releases"""
         if key in self.player.keys:
             self.player.keys.remove(key)
-            self.player.weapon.keys.remove(key)
+            self.player.weapon.keys.discard(key)
 
     def on_mouse_motion(self, x: int, y: int, dx: int, dy: int):
         """Track mouse position"""

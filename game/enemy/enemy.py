@@ -3,6 +3,9 @@ import arcade
 from core.constance import *
 from core.moving_entity import *
 from core.utils.path_manager import PathManager as Pm
+from game.weapon.throwables import Throwables
+from game.weapon.weapon import Weapon
+import time
 
 from game.items.item import Coin
 
@@ -18,15 +21,13 @@ class Enemy(MovingEntity):
         self.collision = arcade.PhysicsEngineSimple(self, self.obstacle_group)
 
         # just a random sound fot hit
-        #self.sounds = {"hurt": [arcade.load_sound(Pm.common_sound(f"Hurt{i}.wav")) for i in range(1, 5)]}
+        # self.sounds = {"hurt": [arcade.load_sound(Pm.common_sound(f"Hurt{i}.wav")) for i in range(1, 5)]}
 
         # Set start pos, based on tile
         self.center_x = x * TILE_SIZE
         self.center_y = y * TILE_SIZE
-
         # sets up the speed
         self.speed = 0.5
-
         self.hp = hp
         self.took_damage = False
 
@@ -38,42 +39,50 @@ class Enemy(MovingEntity):
         self.current_steps = 0
 
         self.move_vector = None
-
         # Update Methods
         self.update_methods = [lambda: self.check_for_player(trigger_d=50),
                                self.collision.update,
                                self.check_for_damage]
 
+        self.damage_sources = []
+
     def check_for_damage(self):
-        """Check if enemy gets hit, prevents multiple damage"""
-        weapon = self.game.player.weapon
-        if weapon.attacking:
-            collide = arcade.check_for_collision(self, weapon)
-            if collide and not self.took_damage:  # FIX: Don't reset it every frame
+        new_sources = []
 
-                self.get_hit(weapon)
-                print("got hit")
-                self.took_damage = True  # Mark that this enemy was hit this attack
+        for damage_source in self.damage_sources:
+            if isinstance(damage_source, Throwables):
+                continue  # handle this separately if needed
 
-        if not weapon.attacking:  # Reset when attack is over
+            if isinstance(damage_source, Weapon):
+                if damage_source.attacking:
+                    new_sources.append(damage_source)
+
+        # Allow damage again only if list is now empty
+        if not new_sources:
             self.took_damage = False
+
+        self.damage_sources = new_sources
+
+    def get_hit(self, weapon):
+        """When enemy get hit"""
+        if weapon.attacking and not self.took_damage:
+            print("hit")
+            self.hp -= weapon.dmg  # Reduce
+            self.took_damage = True
+        self.damage_sources.append(weapon)
 
         if self.hp <= 0:
             self.die()
             for i in range(random.randint(1, 5)):
                 Coin(self.game, random.randint(1, 3)).drop(self.center_x, self.center_y)
 
-    def get_hit(self, weapon):
-        """When enemy get hit"""
-        # self.color = (255, 255, 255)  # ERROR
-        self.hp -= weapon.dmg  # Reduce HP
-        #arcade.play_sound(random.choice(self.sounds.get("hurt")))  # Play sound
         self.get_impulse(weapon.knockback, [weapon.center_x, weapon.center_y])  # Get knockback
+
 
     """Stopped working after migrating to MovingEntity parent class"""
 
     def idle_movement(self):
-        # If you are movingd
+        # If you are moving
         if self.idle_movement_state == "moving":
             # Check if you have walked enough
             if self.current_steps < self.max_steps:
@@ -126,4 +135,3 @@ class Enemy(MovingEntity):
             self.alert_movement()
         else:
             self.idle_movement()
-

@@ -1,244 +1,223 @@
 import arcade
 import random
+from arcade.hitbox import HitBox
+from core.utils.hitbox_manager import HitboxManager as Hm
+from core.utils.vector_manager import VectorManager as Vm
+from core.cooldown_manager import CooldownManager as Cm
 from core.utils.easing import Easing
-from core.utils.path_manager import PathManager as Pm
-from core.hitboxes import CustomHitBoxes as Ch
 from core.constance import *
+from game.weapon.weapon_data import *
 
 
 class Weapon(arcade.Sprite):
-    """Parent class for all weapons"""
 
-    def __init__(self, game, path, owner, hit_box, dmg, pos_offset=(0, -20), cooldown=20, power=5):
+    def __init__(self, game, path, owner, dmg, cooldown=20, recoil=5, shake=(0.1, 3)):
         """
         :param game: pass the whole game
         :param path: give path to the texture
         :param owner: apply to an owner
-        :param hit_box: give a hit_box
         :param dmg: damage the weapon is dealing
-        :param pos_offset: setup individual offset to make weapon look good
         :param cooldown: how fast the weapon hits
         """
         super().__init__(path_or_texture=path, scale=SCALE)
 
-        """Input key list"""
-        self.keys = set()
-
-        """Add to group"""
+        """Connect to game, draw and update group"""
+        # Update
         self.game = game
+        self.update_group = self.game.weapon_list
+        self.update_group.append(self)
+        # Draw
         self.draw_group = self.game.layer_adjusted_sprites
         self.draw_group.append(self)
 
-        self.update_group = self.game.sprite_list
-        self.update_group.append(self)
-
-        """Sounds"""
-        self.sounds = {"hit": [arcade.load_sound(Pm.common_sound(f"hit{i}.wav")) for i in range(1, 3)]}
-
-        """Who owns the weapon"""
-        self.owner = owner
-
-        """Position"""
-        self.pos_offset = pos_offset
-        self.position = self.owner.position
-        self.hit_box = hit_box
+        """Update Methods"""
+        self.update_methods = []
 
         """Texture"""
         self.original_texture = arcade.load_texture(path)
-        self.flipped_texture = self.original_texture.flip_horizontally()
+
+        """Set owner"""
+        self.owner = owner
+
+        """Position"""
+        self.position = self.owner.position
 
         """Stats"""
         self.dmg = dmg
         self.cooldown = cooldown
-        self.power = power
+        self.recoil = recoil
+        self.shake = shake
 
-        """Weapon state"""
+        """State"""
+        self.alive = True
+
+    def recoil_impulse(self):
+        from_x = SCREEN_WIDTH / 2
+        from_y = SCREEN_HEIGHT / 2
+        self.owner.get_impulse(
+            self.recoil,
+            self.game.mouse_pos,
+            invert=-1,
+            from_pos=[from_x, from_y])
+
+    def on_update(self):
+        for method in self.update_methods:
+            if callable(method):
+                method()
+
+        if not self.alive:
+            self.die()
+
+        super().update()
+
+    def add_update(self, method_or_list) -> None:
+        """Adds one or multiple methods to the update list."""
+        if isinstance(method_or_list, list):
+            self.update_methods.extend(method_or_list)
+        else:
+            self.update_methods.append(method_or_list)
+
+    def die(self):
+        self.visible = False
+        if self in self.draw_group:
+            self.draw_group.remove(self)
+        if self in self.update_group:
+            self.update_group.remove(self)
+        self.kill()
+
+
+class Melee(Weapon):
+    def __init__(self, game, owner, config: dict):
+        super().__init__(
+            game=game,  # Connect to game
+            owner=owner,  # Connect ot owner
+            path=config.get("texture_path"),  # Set texture
+            dmg=config.get("damage"),  # Set the dmg
+            cooldown=config.get("cooldown"),  # Set the cooldown on hit
+            recoil=config.get("recoil"),  # Set the recoil
+        )
+        self.keys = set()
+
+        """Melee exclusive"""
+        self.knockback = config.get("knockback")  # How strong knockback the enemy is getting
+        self.attack_style = config.get("attack_style")  # Style affects the hit pattern and animation
+        self.attack_radius = config.get("attack_radius")  # How far the weapon is reaching
+        self.attack_angle = config.get("attack_angle")
+        """Texture"""
+        self.original_texture = arcade.load_texture(config.get("texture_path"))
+        self.flipped_texture = self.original_texture.flip_horizontally()
+        """Sounds"""
+        self.sounds = {
+            "hit": [arcade.load_sound(Pm.common_sound(f"Hit{i}.wav")) for i in range(1, 3)]
+        }
+        """Pos"""
+        self.offset_pos = config.get("offset_pos")
+        self.shake = config.get("shake_effect")
+        """HitBox"""
+        self.cooldowns = Cm()
+        self.cooldowns.add("hitbox", 10)
+        self.ghost_hitbox = arcade.Sprite(
+            path_or_texture=None
+        )
+        """State"""
         self.attacking = False
-        self.attack_progress = 0
-        self.cooldown_time = cooldown  # Total duration for the attack animation
+        self.attack_progress = 0  # Total duration for the attack animation
         self.start_angle = 0  # starting rotation
         self.end_angle = 140  # ending rotation
         self.angle = 0  # current angle
 
-    def update_attack_animation(self):
+        self.add_update(self.update_methods_test)
+
+    def hit(self):
+        if not self.attacking:
+            self.attacking = True
+            self.cooldowns.start("hitbox")
+
+            arcade.play_sound(random.choice(self.sounds.get("hit")))
+            self.recoil_impulse()
+            self.game.camera.start_shake(strength=self.shake)
+
+    def start_attack(self):
         if self.attacking:
+            self.update_attack_hitbox()
+
+            """Animation"""
             if self.owner.dir[0] == "left":
                 invert = -1
             else:
                 invert = 1
-
             self.attack_progress += 1
-            progress = min(self.attack_progress / self.cooldown_time, 1)
-
-            # Use the custom easing
+            progress = min(self.attack_progress / self.cooldown, 1)
             eased = Easing.swing_and_return(progress)
-
             self.angle = self.start_angle + (self.end_angle - self.start_angle) * eased * invert
+            """--------------------------------------------------------------------------------"""
+            """Check if enemies in the swing"""
+            for enemy in self.game.enemy_list:
+                if Hm.check_overlap(self.ghost_hitbox, enemy) and not enemy.took_damage:
+                    enemy.get_hit(self)
 
             if progress >= 1:
-                self.attacking = False
-                self.attack_progress = 0
-                self.angle = self.start_angle
+                self.end_attack()
 
-    """def adjust_layer_based_on_owner(self):
-        draw_group = self.draw_group
-        if self in draw_group:
-            draw_group.remove(self)
+    def end_attack(self):
+        self.attacking = False
+        self.attack_progress = 0
+        self.angle = self.start_angle
+        # self.ghost_hitbox.hit_box = HitBox([])
 
-        owner_index = draw_group.index(self.owner)
-
-        if self.owner.dir[1] == "down":
-            draw_group.insert(owner_index + 1, self)  # Weapon in front
+    def update_attack_hitbox(self):
+        if not self.cooldowns.ready("hitbox"):
+            position = self.position
+            radius = self.attack_radius  # How big the hit box is going to be
+            angle = Vm.get_angle(position, self.game.mouse_world) + 180  # Rotate it towards mouse
+            span = self.attack_angle  # How big the pizza slice is going to be
+            # Apply the new hitbox
+            self.ghost_hitbox.hit_box = HitBox(Hm.sector(position, radius, angle, span))
         else:
-            draw_group.insert(owner_index - 1, self)  # Weapon behind or at same level"""
+            self.ghost_hitbox.hit_box = HitBox([(0, 0)])
 
-    def hit(self):
-        """Prevents spam attack"""
-        if not self.attacking:
-            self.attacking = True
-
-            # Play sound
-            arcade.play_sound(random.choice(self.sounds.get("hit")))
-
-            self.recoil_impulse()
-            self.game.camera.start_shake(0.1, 3)
-            self.attack_progress = 0
+    def follow_owner(self):
+        self.position = Vm.add_vec2(self.owner.position, self.offset_pos)
 
     def update_dir(self):
-        """Turn the weapon if player turns"""
         if self.owner.dir[0] == "left":
             self.texture = self.original_texture
         elif self.owner.dir[0] == "right":
             self.texture = self.flipped_texture
 
-    def recoil_impulse(self):
-        from_x = SCREEN_WIDTH / 2
-        from_y = SCREEN_HEIGHT / 2
-        self.owner.get_impulse(2, self.game.mouse_pos, invert=-1, from_pos=[from_x, from_y])
-
-    def on_update(self):
-        super().update()
-        # Update weapon position relative to owner
-        self.position = (self.owner.position[0] + self.pos_offset[0],
-                         self.owner.position[1] + self.pos_offset[1])
-
+    def update_methods_test(self):
+        self.follow_owner()
         self.update_dir()
-        # self.adjust_layer_based_on_owner()
+        self.cooldowns.tick_all()
 
         if arcade.key.SPACE in self.keys:
             self.hit()
-
         if self.attacking:
-            self.update_attack_animation()
+            self.start_attack()
 
 
-"""Sword"""
-
-
-class ClassicSword(Weapon):
-    def __init__(self, game, owner):
-        super().__init__(game=game,
-                         path=Pm.weapon_img("sword", "ClassicSword.png"),
-                         owner=owner,
-                         hit_box=Ch().sword,
-                         dmg=10,
-                         cooldown=25,
-                         power=5)
-
-
-class BrokenSword(Weapon):
-    def __init__(self, game, owner):
-        super().__init__(game=game,
-                         path=Pm.weapon_img("sword", "BrokenSword.png"),
-                         owner=owner,
-                         hit_box=Ch().sword,
-                         dmg=2,
-                         cooldown=60,
-                         power=2)
-
-
-class IronSword(Weapon):
+class ClassicSword(Melee):
     def __init__(self, game, owner):
         super().__init__(
             game=game,
-            path=Pm.weapon_img("sword", "IronSword.png"),
             owner=owner,
-            hit_box=Ch().sword,
-
-            dmg=5, cooldown=50, power=3
+            config=CLASSIC_SWORD
         )
 
 
-class RedSword(Weapon):
+class IronLongAxe(Melee):
     def __init__(self, game, owner):
-        super().__init__(game=game,
-                         path=Pm.weapon_img("sword", "RedSword.png"),
-                         owner=owner,
-                         hit_box=Ch().sword,
-                         dmg=4,
-                         cooldown=20,
-                         power=2)
+        super().__init__(
+            game=game,
+            owner=owner,
+            config=IRON_LONG_AXE
+        )
 
 
-"""AXES"""
-
-
-class DoubleBigIronAxe(Weapon):
+class RedSword(Melee):
     def __init__(self, game, owner):
-        super().__init__(game=game,
-                         path=Pm.weapon_img("axe", "DoubleBigIronAxe.png"),
-                         owner=owner,
-                         hit_box=Ch().sword,
-                         dmg=15,
-                         cooldown=80,
-                         power=6)
-
-
-class IronLongAxe(Weapon):
-    def __init__(self, game, owner):
-        super().__init__(game=game,
-                         path=Pm.weapon_img("axe", "IronLongAxe.png"),
-                         owner=owner,
-                         hit_box=Ch().sword,
-                         dmg=10,
-                         cooldown=70,
-                         power=3)
-
-
-"""Blunt"""
-
-
-class WoodClub(Weapon):
-    def __init__(self, game, owner):
-        super().__init__(game=game,
-                         path=Pm.weapon_img("blunt", "WoodClub.png"),
-                         owner=owner,
-                         hit_box=Ch().sword,
-                         dmg=2,
-                         cooldown=60,
-                         power=10)
-
-
-class ShortStick(Weapon):
-    def __init__(self, game, owner):
-        super().__init__(game=game,
-                         path=Pm.weapon_img("blunt", "ShortStick.png"),
-                         owner=owner,
-                         hit_box=Ch().sword,
-                         dmg=1,
-                         cooldown=60,
-                         power=2)
-
-
-"""Dagger"""
-
-
-class Dagger(Weapon):
-    def __init__(self, game, owner):
-        super().__init__(game=game,
-                         path=Pm.weapon_img("dagger", "Dagger.png"),
-                         owner=owner,
-                         hit_box=Ch().sword,
-                         dmg=1,
-                         cooldown=10,
-                         power=1)
+        super().__init__(
+            game=game,
+            owner=owner,
+            config=RED_SWORD
+        )

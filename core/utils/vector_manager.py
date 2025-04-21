@@ -42,7 +42,7 @@ class VectorManager:
         :param a: from pos
          :param b: to pos
         """
-        dv = (a[0] - b[0], -1 * (a[1] - b[1]))
+        dv = (a[0] - b[0], a[1] - b[1])
         return math.degrees(math.atan2(dv[1], dv[0]))
 
     @staticmethod

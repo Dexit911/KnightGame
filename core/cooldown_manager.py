@@ -36,6 +36,9 @@ class CooldownManager:
         if name in self.cooldowns:
             self.cooldowns[name].reset()
 
+    def start(self, name: str):
+        self.reset(name)
+
     def ready(self, name: str) -> bool:
         return self.cooldowns.get(name, Cooldown(0)).ready()
 
