@@ -10,7 +10,7 @@ class Cooldown:
         if self.timer > 0:
             self.timer -= 1
 
-    def ready(self):
+    def ready(self) -> bool:
         return self.timer <= 0
 
     def trigger_once(self):

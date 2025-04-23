@@ -2,8 +2,11 @@ import random
 import arcade
 from core.constance import SCALE
 from game.items import item_types as it
+from core.utils.easing import Easing
+from core.simple_animation import SimpleAnimation as Sm
 from core.hitboxes import CustomHitBoxes as Ch
 from core.utils.path_manager import PathManager as Pm
+from core.utils.vector_manager import VectorManager as Vm
 
 """Name, is key to texture path"""
 
@@ -28,20 +31,28 @@ class Item(arcade.Sprite):
 
         self.hit_box = Ch(self.center_x, self.center_y).item
 
-
+        """Animation for dropping, Going to get rework"""
         self.is_dropping = False
         self.drop_progress = 0
-        self.max_drop_time = 1
+        self.max_drop_time = 40
+        self.drop_start_y = 0
+        self.drop_end_y = 25
 
-    def drop(self, x, y):
+    def drop(self, position: tuple):
+        offset_position = (random.randint(-5, 5), random.randint(-5, 5))
+        self.position = Vm.add_vec2(position, offset_position)
+        self.drop_start_y += self.center_y
         self.is_dropping = True
-        offset_x, offset_y = random.randint(-5, 5), random.randint(-5, 5)
-        self.center_x, self.center_y = x + offset_x, y + offset_y
 
     def update_drop_animation(self):
-        pass
+        if self.is_dropping:
+            self.drop_progress += 1
+            progress = min(self.drop_progress / self.max_drop_time, 1)
+            eased = Easing.bounce_out(progress)
+            self.center_y = self.drop_start_y - (eased * self.drop_end_y)
 
-
+            if progress >= 1:
+                self.is_dropping = False
 
     def on_picked_up(self, owner):
         match self.item_type:
@@ -52,11 +63,11 @@ class Item(arcade.Sprite):
             case it.CURRENCY:
                 arcade.play_sound(self.currency_sound)
                 owner.set_coin(self.amount)
-
                 pass
 
     def on_update(self):
         super().update()
+        self.update_drop_animation()
 
 
 class Coin(Item):

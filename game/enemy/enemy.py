@@ -74,7 +74,7 @@ class Enemy(MovingEntity):
         if self.hp <= 0:
             self.die()
             for i in range(random.randint(1, 5)):
-                Coin(self.game, random.randint(1, 3)).drop(self.center_x, self.center_y)
+                Coin(self.game, random.randint(1, 3)).drop(self.position)
 
         self.get_impulse(weapon.knockback, [weapon.center_x, weapon.center_y])  # Get knockback
 

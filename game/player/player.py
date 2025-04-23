@@ -3,7 +3,7 @@ import random
 import arcade
 
 from game.weapon.throwables import ThrowingKnife
-from game.weapon.weapon import ClassicSword, IronLongAxe, RedSword
+from game.weapon.weapon import *
 from core.moving_entity import MovingEntity
 from core.hitboxes import CustomHitBoxes as Ch
 from core.utils.path_manager import PathManager as Pm
@@ -39,13 +39,15 @@ class Player(MovingEntity):
             ClassicSword,
             IronLongAxe,
             RedSword,
+            DoubleIronAxe,
+            IronHammer,
+            DragonSlayer
 
         ]
         self.weapon_index = 0
         self.weapon = self.weapon_classes[self.weapon_index](self.game, self)
 
         self.thrown_classes = []
-
 
         """Inventory """
         self.inv = {"coin": 0}
@@ -136,10 +138,7 @@ class Player(MovingEntity):
             knife(self.game, self).launch()
             self.cooldowns.reset("throw")
 
-
-
     def update_direction_based_on_mouse(self, mouse_x, mouse_y):
-
 
         new_horizontal = "right" if mouse_x > SCREEN_WIDTH / 2 else "left"
         new_vertical = "up" if mouse_y > SCREEN_HEIGHT / 2 else "down"
@@ -178,18 +177,19 @@ class Player(MovingEntity):
         print(self.inv["coin"])
 
     def change_weapon(self):
-        # Remove the current weapon from groups
-        if self.weapon in self.game.layer_adjusted_sprites:
-            self.game.layer_adjusted_sprites.remove(self.weapon)
-        if self.weapon in self.game.sprite_list:
-            self.game.sprite_list.remove(self.weapon)
+        if not self.weapon.attacking:
+            if self.weapon in self.game.layer_adjusted_sprites:
+                self.game.layer_adjusted_sprites.remove(self.weapon)
+            if self.weapon in self.game.sprite_list:
+                self.game.sprite_list.remove(self.weapon)
 
-        # Kill current weapon
-        self.weapon.kill()
+            # Kill current weapon
+            self.weapon.kill()
 
-        # Go to next weapon in the list
-        self.weapon_index = (self.weapon_index + 1) % len(self.weapon_classes)
-        self.weapon = self.weapon_classes[self.weapon_index](self.game, self)
+            # Go to next weapon in the list
+            self.weapon_index = (self.weapon_index + 1) % len(self.weapon_classes)
+            self.weapon = self.weapon_classes[self.weapon_index](self.game, self)
+        from core.utils.path_manager import PathManager as Pm
 
     def weapon_update(self):
         if self.weapon:

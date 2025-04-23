@@ -4,6 +4,7 @@ from arcade.hitbox import HitBox
 from core.utils.hitbox_manager import HitboxManager as Hm
 from core.utils.vector_manager import VectorManager as Vm
 from core.cooldown_manager import CooldownManager as Cm
+from core.simple_animation import SimpleAnimation
 from core.utils.easing import Easing
 from core.constance import *
 from game.weapon.weapon_data import *
@@ -19,35 +20,28 @@ class Weapon(arcade.Sprite):
         :param dmg: damage the weapon is dealing
         :param cooldown: how fast the weapon hits
         """
-        super().__init__(path_or_texture=path, scale=SCALE)
+        super().__init__(path_or_texture=path, scale=2.1)
 
-        """Connect to game, draw and update group"""
-        # Update
+        """Update group"""
         self.game = game
         self.update_group = self.game.weapon_list
         self.update_group.append(self)
-        # Draw
+        """Draw group"""
         self.draw_group = self.game.layer_adjusted_sprites
         self.draw_group.append(self)
-
         """Update Methods"""
         self.update_methods = []
-
         """Texture"""
         self.original_texture = arcade.load_texture(path)
-
         """Set owner"""
         self.owner = owner
-
         """Position"""
         self.position = self.owner.position
-
         """Stats"""
         self.dmg = dmg
         self.cooldown = cooldown
         self.recoil = recoil
         self.shake = shake
-
         """State"""
         self.alive = True
 
@@ -96,8 +90,8 @@ class Melee(Weapon):
             cooldown=config.get("cooldown"),  # Set the cooldown on hit
             recoil=config.get("recoil"),  # Set the recoil
         )
+        """Set Keys"""
         self.keys = set()
-
         """Melee exclusive"""
         self.knockback = config.get("knockback")  # How strong knockback the enemy is getting
         self.attack_style = config.get("attack_style")  # Style affects the hit pattern and animation
@@ -150,7 +144,7 @@ class Melee(Weapon):
             progress = min(self.attack_progress / self.cooldown, 1)
             eased = Easing.swing_and_return(progress)
             self.angle = self.start_angle + (self.end_angle - self.start_angle) * eased * invert
-            """--------------------------------------------------------------------------------"""
+
             """Check if enemies in the swing"""
             for enemy in self.game.enemy_list:
                 if Hm.check_overlap(self.ghost_hitbox, enemy) and not enemy.took_damage:
@@ -221,3 +215,45 @@ class RedSword(Melee):
             owner=owner,
             config=RED_SWORD
         )
+
+
+class IronHammer(Melee):
+    def __init__(self, game, owner):
+        super().__init__(
+            game=game,
+            owner=owner,
+            config=IRON_HAMMER
+        )
+
+
+class DoubleIronAxe(Melee):
+    def __init__(self, game, owner):
+        super().__init__(
+            game=game,
+            owner=owner,
+            config=DOUBLE_IRON_AXE
+        )
+
+
+
+class WoodClub(Melee):
+    def __init__(self, game, owner):
+        super().__init__(
+            game=game,
+            owner=owner,
+            config=WOOD_CLUB
+        )
+
+
+
+class DragonSlayer(Melee):
+    def __init__(self, game, owner):
+        super().__init__(
+            game=game,
+            owner=owner,
+            config=DRAGON_SLAYER
+        )
+
+
+
+
