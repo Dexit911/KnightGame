@@ -235,7 +235,6 @@ class DoubleIronAxe(Melee):
         )
 
 
-
 class WoodClub(Melee):
     def __init__(self, game, owner):
         super().__init__(
@@ -245,7 +244,6 @@ class WoodClub(Melee):
         )
 
 
-
 class DragonSlayer(Melee):
     def __init__(self, game, owner):
         super().__init__(
@@ -253,7 +251,3 @@ class DragonSlayer(Melee):
             owner=owner,
             config=DRAGON_SLAYER
         )
-
-
-
-

@@ -29,6 +29,14 @@ class PathManager:
         return PathManager.img("item", *name)
 
     @staticmethod
+    def trinket_img(*name):
+        return PathManager.img("item", "trinket", *name)
+
+    @staticmethod
+    def heal_img(*name):
+        return PathManager.img("item", "heal", *name)
+
+    @staticmethod
     def player_img(*name):
         return PathManager.img("player", *name)
 

@@ -1,10 +1,15 @@
 class Cooldown:
     def __init__(self, duration_frames):
         self.max = duration_frames
+        self.base_max = duration_frames
         self.timer = 0
 
     def reset(self):
         self.timer = self.max
+
+    def reset_with_change(self, multi_percent):
+        self.max = int(self.base_max * (1 - multi_percent))
+        self.reset()
 
     def tick(self):
         if self.timer > 0:
@@ -49,10 +54,8 @@ class CooldownManager:
         for cooldown in self.cooldowns.values():
             cooldown.tick()
 
-    def with_reduction(self, name: str, reduction_percent: float):
-        if name in self.cooldowns:
-            base = self.cooldowns[name].max
-            self.cooldowns[name] = Cooldown.with_reduction(base, reduction_percent)
+    def reset_with_change(self, name: str, multi_percent):
+        return self.cooldowns.get(name).reset_with_change(multi_percent)
 
     def __getitem__(self, name: str) -> Cooldown:
         return self.cooldowns[name]  # direct access if needed

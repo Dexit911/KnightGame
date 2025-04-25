@@ -22,8 +22,9 @@ class Throwables(Weapon):
         """Hitbox"""
         self.hit_box = Ch().default
 
-        """Collision"""
+        """Group"""
         self.collision_group = self.game.obstacle_list
+        self.update_group = self.game.throwable_list
 
         """Sounds"""
         self.sounds = {"throw": [arcade.load_sound(Pm.player_sound("throw", f"Throw{i}.wav")) for i in range(1, 5)],

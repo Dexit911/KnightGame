@@ -5,6 +5,7 @@ from core.moving_entity import *
 from core.utils.path_manager import PathManager as Pm
 from game.weapon.throwables import Throwables
 from game.weapon.weapon import Weapon
+from game.items.item_factory import ItemFactory
 import time
 
 from game.items.item import Coin
@@ -63,18 +64,26 @@ class Enemy(MovingEntity):
 
         self.damage_sources = new_sources
 
+    def drop_loot(self):
+        position = self.position
+        game = self.game
+        trinket_haste = ItemFactory.create_trinket(game, "haste_amulet")
+        trinket_haste.drop(position)
+        trinket_dash = ItemFactory.create_trinket(game, "dash_feather")
+        trinket_dash.drop(position)
+        trinket_throw = ItemFactory.create_trinket(game, "kunai_charm")
+        trinket_throw.drop(position)
+
     def get_hit(self, weapon):
         """When enemy get hit"""
         if weapon.attacking and not self.took_damage:
-            print("hit")
             self.hp -= weapon.dmg  # Reduce
             self.took_damage = True
         self.damage_sources.append(weapon)
 
         if self.hp <= 0:
             self.die()
-            for i in range(random.randint(1, 5)):
-                Coin(self.game, random.randint(1, 3)).drop(self.position)
+            self.drop_loot()
 
         self.get_impulse(weapon.knockback, [weapon.center_x, weapon.center_y])  # Get knockback
 

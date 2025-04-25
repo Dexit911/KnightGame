@@ -67,6 +67,7 @@ class Game(arcade.Window):
 
         self.item_list = arcade.SpriteList()
         self.weapon_list = arcade.SpriteList()
+        self.throwable_list = arcade.SpriteList()
 
         """Map"""
         self.tile_map = TILE_MAP
@@ -111,14 +112,14 @@ class Game(arcade.Window):
         self.layer_adjusted_sprites.draw()
 
         """Hitboxes"""
-
+        """
         self.obstacle_list.draw_hit_boxes()
         self.player.draw_hit_box()
         self.item_list.draw_hit_boxes()
         self.enemy_list.draw_hit_boxes()
 
         for weapon in self.weapon_list:
-            weapon.ghost_hitbox.draw_hit_box(color=arcade.color.RED)
+            weapon.ghost_hitbox.draw_hit_box(color=arcade.color.RED)"""
 
     def on_update(self, delta_time):
 
@@ -131,10 +132,11 @@ class Game(arcade.Window):
         """Update Player"""
         self.player.on_update()
 
-        """Update Enemies"""
+        """Update all groups"""
         for enemy in self.enemy_list: enemy.on_update()
         for item in self.item_list: item.on_update()
         for weapon in self.weapon_list: weapon.on_update()
+        for throwable in self.throwable_list: throwable.on_update()
 
         self.collision_engine.update()
 

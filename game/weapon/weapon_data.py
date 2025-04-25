@@ -18,7 +18,7 @@ CLASSIC_SWORD = {
     "offset_pos": (0, -20),
     "shake_effect": 3,
     "damage": 10,
-    "cooldown": 100,
+    "cooldown": 30,
     "knockback": 5,
     "recoil": 5,
     "attack_style": "arc",
