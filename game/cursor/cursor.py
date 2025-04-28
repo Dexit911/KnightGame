@@ -60,7 +60,6 @@ class Cursor(arcade.Sprite):
     def update_state(self):
         """Update state based on what the cursor is touching"""
         interactables = self.game.interactable_list
-        items = self.game.item_list
         self.nearby_interactables = []
 
         for obj in interactables:

@@ -5,6 +5,7 @@ from core.camera import *
 from game.enemy.enemy import Enemy
 from game.cursor.cursor import Cursor
 from game.object.interactable import Chest
+from core.utils.path_manager import PathManager as Pm
 
 print(arcade.__version__)
 
@@ -103,6 +104,11 @@ class Game(arcade.Window):
         """Debug Spawn"""
         Chest(self).spawn((0, 0))
 
+
+        """Sound"""
+        self.song = arcade.load_sound(Pm.sound("main_theme.mp3"))
+        arcade.play_sound(self.song, volume=0.2, loop=True)
+
     def create_tile_map(self):
         """Create Objects for different char"""
         for i, row in enumerate(self.tile_map):
@@ -123,7 +129,6 @@ class Game(arcade.Window):
         self.sprite_list.draw()
         self.layer_adjusted_sprites.draw()
 
-
         self.cursor_list.draw()
 
         """Hitboxes"""
@@ -137,7 +142,7 @@ class Game(arcade.Window):
             weapon.ghost_hitbox.draw_hit_box(color=arcade.color.RED)"""
 
     def on_update(self, delta_time):
-
+        print(arcade.get_fps())
         """Update Camera"""
         self.camera.update()
 

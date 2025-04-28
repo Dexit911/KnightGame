@@ -12,7 +12,7 @@ from game.items.item import Coin
 
 
 class Enemy(MovingEntity):
-    def __init__(self, game, x, y, hp=10):
+    def __init__(self, game, x, y, hp=20):
         super().__init__(img=Pm.img("enemy", "slime", "Slime.png"), game=game)
         # Add to enemies
         self.game.enemy_list.append(self)
@@ -47,6 +47,10 @@ class Enemy(MovingEntity):
 
         self.damage_sources = []
 
+        """Sounds"""
+        self.sounds = {
+            "hurt": [arcade.load_sound(Pm.sound("enemy", "slime", f"SlimeHurt{i}.wav")) for i in range(1, 4)]}
+
     def check_for_damage(self):
         new_sources = []
 
@@ -77,16 +81,17 @@ class Enemy(MovingEntity):
     def get_hit(self, weapon):
         """When enemy get hit"""
         if weapon.attacking and not self.took_damage:
+            # Play sound
+            arcade.play_sound(random.choice(self.sounds["hurt"]), volume=2)
             self.hp -= weapon.dmg  # Reduce
             self.took_damage = True
-        self.damage_sources.append(weapon)
 
-        if self.hp <= 0:
-            self.die()
-            self.drop_loot()
+            self.damage_sources.append(weapon)
+            if self.hp <= 0:
+                self.die()
+                self.drop_loot()
 
-        self.get_impulse(weapon.knockback, [weapon.center_x, weapon.center_y])  # Get knockback
-
+            self.get_impulse(weapon.knockback, [weapon.center_x, weapon.center_y])  # Get knockback
 
     """Stopped working after migrating to MovingEntity parent class"""
 

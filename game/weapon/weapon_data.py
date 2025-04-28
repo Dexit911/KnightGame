@@ -19,7 +19,7 @@ WEAPONS = {
             "texture_path": Pm.weapon_img("sword", "ClassicSword.png"),
             "offset_pos": (0, -20),
             "shake_effect": 3,
-            "damage": 10,
+            "damage": 5,
             "cooldown": 30,
             "knockback": 5,
             "recoil": 5,

@@ -20,14 +20,18 @@ class Player(MovingEntity):
 
         self.sounds = {
             "dash": [arcade.load_sound(Pm.sound("player", f"Dash{i}.wav")) for i in range(1, 3)],
-            "weapon_switch": [arcade.load_sound(Pm.sound("player", f"WeaponChange{i}.wav")) for i in range(1, 3)]
+            "weapon_switch": [arcade.load_sound(Pm.sound("player", f"WeaponChange{i}.wav")) for i in range(1, 3)],
+            "throw": [arcade.load_sound(Pm.sound("player", "throw", f"Throw{i}.wav")) for i in range(1, 4)],
         }
 
         """Weapon"""
         self.weapon_classes = [
             ("sword", "classic_sword"),
             ("sword", "dragon_slayer"),
-            ("axe", "double_iron_axe")
+            ("sword", "red_sword"),
+            ("axe", "double_iron_axe"),
+            ("axe", "iron_long_axe"),
+
         ]
 
         self.weapon_index = 0
@@ -47,11 +51,11 @@ class Player(MovingEntity):
             "evasion": 0,
 
             # Speed-------------
-            "speed": 1,
+            "speed": 1.2,
             "speed_multi": 1,
 
             # Dash--------------
-            "dash_power": 15,
+            "dash_power": 10,
             "dash_cd": 30,
             "dash_cd_multi": 0,
 
@@ -150,6 +154,7 @@ class Player(MovingEntity):
         if arcade.key.Q in self.keys and self.cd.ready("throw"):
             knife = self.thrown_classes[0]
             knife(self.game, self).launch()
+            arcade.play_sound(random.choice(self.sounds["throw"]))
             self.cd.reset_with_change("throw", self.stats["throw_cd_multi"])
 
     def update_direction_based_on_mouse(self, mouse_x, mouse_y):

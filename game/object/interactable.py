@@ -53,7 +53,7 @@ class Chest(Interactable):
             ItemFactory.create_trinket(game, "kunai_charm")
         ]
         for item in items: item.drop(self.position)
-        self.kill()
+        #self.kill()
 
 
 

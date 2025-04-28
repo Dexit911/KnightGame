@@ -48,7 +48,7 @@ class Throwables(Weapon):
         angle = Vm.get_angle_from_center_to(target_pos) * -1
         # Apply the changes
         self.velocity = Vm.scale_vec2(launch_direction, self.speed)
-        self.angle = angle - 90
+        self.angle = angle - 45
 
         self.alive = True
         self.attacking = True
