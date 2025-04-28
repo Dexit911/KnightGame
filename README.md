@@ -2,6 +2,10 @@ pip install arcade
 
 main.py - start file 
 
-Movement - W,A,S,D
-SPACE - hit 
+Movement:
+SPACE - hit
 E - dash
+Q - throw
+F - interact
+R - change weapon 
+
