@@ -8,6 +8,7 @@ from core.moving_entity import MovingEntity
 from core.hitboxes import CustomHitBoxes as Ch
 from core.utils.path_manager import PathManager as Pm
 from core.cooldown_manager import CooldownManager
+from game.items.item_factory import ItemFactory
 from core.constance import *
 
 
@@ -24,16 +25,14 @@ class Player(MovingEntity):
 
         """Weapon"""
         self.weapon_classes = [
-            ClassicSword,
-            IronLongAxe,
-            RedSword,
-            DoubleIronAxe,
-            IronHammer,
-            DragonSlayer
-
+            ("sword", "classic_sword"),
+            ("sword", "dragon_slayer"),
+            ("axe", "double_iron_axe")
         ]
+
         self.weapon_index = 0
-        self.weapon = self.weapon_classes[self.weapon_index](self.game, self)
+        weapon_type, weapon_id = self.weapon_classes[self.weapon_index]
+        self.weapon = ItemFactory.create_weapon(self.game, self, weapon_type, weapon_id)
 
         self.thrown_classes = [ThrowingKnife]
 
@@ -75,7 +74,6 @@ class Player(MovingEntity):
 
         """Cooldown"""
         self.cd = CooldownManager()
-
         self.cd.add("dash", self.stats["dash_cd"])
         self.cd.add("throw", self.stats["throw_cd"])
         self.cd.add("weapon_switch", 15)
@@ -191,17 +189,22 @@ class Player(MovingEntity):
             self.stats["hp"] = self.stats["max_hp"]
 
     def change_weapon(self):
-        """Changing through your weapons"""
+        """Switch to next weapon instance"""
         if not self.weapon.attacking:
+            # Safety list check --------------------------------------------------
             if self.weapon in self.game.layer_adjusted_sprites:
                 self.game.layer_adjusted_sprites.remove(self.weapon)
             if self.weapon in self.game.sprite_list:
                 self.game.sprite_list.remove(self.weapon)
-            # Kill current weapon
+            # Delete the current weapon ------------------------------------------
             self.weapon.kill()
-            # Go to next weapon in the list
+            # Go to next weapon in index -----------------------------------------
             self.weapon_index = (self.weapon_index + 1) % len(self.weapon_classes)
-            self.weapon = self.weapon_classes[self.weapon_index](self.game, self)
+            # Create the next weapon ---------------------------------------------
+            weapon_type, weapon_id = self.weapon_classes[self.weapon_index]
+            self.weapon = ItemFactory.create_weapon(
+                self.game, self, weapon_type, weapon_id
+            )
 
     def __str__(self):
         return f"stats: {self.stats}\n inv: {self.inv}"

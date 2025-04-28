@@ -1,13 +1,20 @@
-SCREEN_WIDTH = 2000
+SCREEN_WIDTH = 1000
 SCREEN_HEIGHT = 1000
+WINDOW_SCALE = 1
+
+# Window size:
+WINDOW_WIDTH = SCREEN_WIDTH * WINDOW_SCALE
+WINDOW_HEIGHT = SCREEN_HEIGHT * WINDOW_SCALE
+
 SCREEN_CENTER_POS = (SCREEN_WIDTH/2, SCREEN_HEIGHT/2)
+
 
 VOLUME = 0.7
 
 TITLE = "RPG"
 
 TILE_MAP = ["..Bwwwwwwwwwww...",
-            "..Bw.E.w.....w.EE",
+            "..Bw.E.w.....D.EE",
             ".Ss.B..BE..PPPPEE",
             "...w.PPPPPPP.w.Ss",
             "PPPPPPEBPPPB..s..",
@@ -20,7 +27,7 @@ TILE_MAP = ["..Bwwwwwwwwwww...",
             ".......^PP^....r.",
             "www.ww..PP..ww...",
             "EE.rEEE.PP...EEE.",
-            ".E.wwEE.PP.EEEE..",
+            ".E.wwEE.PP.......",
             "ww......PP.www...",]
 
 SCALE = 2

@@ -1,9 +1,10 @@
 import math
 from core.animation import Animate
+from core.constance import SCALE
 
 
 class MovingEntity(Animate):
-    def __init__(self, game, img, scale=2.0, animate_time=10.0):
+    def __init__(self, game, img, scale=SCALE, animate_time=10.0):
         super().__init__(img=img, scale=scale, animate_time=animate_time)
         self.game = game
         # self.game.moving_entities.append(self)  # Ad to entity list that handles the draw

@@ -12,15 +12,8 @@ from game.weapon.weapon_data import *
 
 class Weapon(arcade.Sprite):
 
-    def __init__(self, game, path, owner, dmg, cooldown=20, recoil=5, shake=(0.1, 3)):
-        """
-        :param game: pass the whole game
-        :param path: give path to the texture
-        :param owner: apply to an owner
-        :param dmg: damage the weapon is dealing
-        :param cooldown: how fast the weapon hits
-        """
-        super().__init__(path_or_texture=path, scale=2.1)
+    def __init__(self, game, owner, config):
+        super().__init__(path_or_texture=config["texture_path"], scale=SCALE)
 
         """Update group"""
         self.game = game
@@ -32,18 +25,20 @@ class Weapon(arcade.Sprite):
         """Update Methods"""
         self.update_methods = []
         """Texture"""
-        self.original_texture = arcade.load_texture(path)
+        self.original_texture = arcade.load_texture(config["texture_path"])
         """Set owner"""
         self.owner = owner
         """Position"""
         self.position = self.owner.position
         """Stats"""
-        self.dmg = dmg
-        self.cooldown = cooldown
-        self.recoil = recoil
-        self.shake = shake
+        self.dmg = config["damage"]
+        self.recoil = config["recoil"]
+        self.shake = config["shake_effect"]
+        self.knockback = config["knockback"]
         """State"""
         self.alive = True
+        self.attacking = False
+        """hitbox"""
 
     def recoil_impulse(self):
         from_x = SCREEN_WIDTH / 2
@@ -54,14 +49,17 @@ class Weapon(arcade.Sprite):
             invert=-1,
             from_pos=[from_x, from_y])
 
+    def check_for_enemy(self, hitbox):
+        for enemy in self.game.enemy_list:
+            if Hm.check_overlap(hitbox, enemy) and not enemy.took_damage:
+                enemy.get_hit(self)
+
     def on_update(self):
         for method in self.update_methods:
             if callable(method):
                 method()
-
         if not self.alive:
             self.die()
-
         super().update()
 
     def add_update(self, method_or_list) -> None:
@@ -85,18 +83,15 @@ class Melee(Weapon):
         super().__init__(
             game=game,  # Connect to game
             owner=owner,  # Connect ot owner
-            path=config.get("texture_path"),  # Set texture
-            dmg=config.get("damage"),  # Set the dmg
-            cooldown=config.get("cooldown"),  # Set the cooldown on hit
-            recoil=config.get("recoil"),  # Set the recoil
+            config=config  # Set the recoil
         )
         """Set Keys"""
         self.keys = set()
         """Melee exclusive"""
-        self.knockback = config.get("knockback")  # How strong knockback the enemy is getting
         self.attack_style = config.get("attack_style")  # Style affects the hit pattern and animation
         self.attack_radius = config.get("attack_radius")  # How far the weapon is reaching
         self.attack_angle = config.get("attack_angle")
+        self.cooldown = config.get("cooldown", 30)
         """Texture"""
         self.original_texture = arcade.load_texture(config.get("texture_path"))
         self.flipped_texture = self.original_texture.flip_horizontally()
@@ -106,7 +101,6 @@ class Melee(Weapon):
         }
         """Pos"""
         self.offset_pos = config.get("offset_pos")
-        self.shake = config.get("shake_effect")
         """HitBox"""
         self.cooldowns = Cm()
         self.cooldowns.add("hitbox", 10)
@@ -114,7 +108,6 @@ class Melee(Weapon):
             path_or_texture=None
         )
         """State"""
-        self.attacking = False
         self.attack_progress = 0  # Total duration for the attack animation
         self.start_angle = 0  # starting rotation
         self.end_angle = 140  # ending rotation
@@ -146,9 +139,7 @@ class Melee(Weapon):
             self.angle = self.start_angle + (self.end_angle - self.start_angle) * eased * invert
 
             """Check if enemies in the swing"""
-            for enemy in self.game.enemy_list:
-                if Hm.check_overlap(self.ghost_hitbox, enemy) and not enemy.took_damage:
-                    enemy.get_hit(self)
+            self.check_for_enemy(self.ghost_hitbox)
 
             if progress >= 1:
                 self.end_attack()
@@ -188,66 +179,3 @@ class Melee(Weapon):
             self.hit()
         if self.attacking:
             self.start_attack()
-
-
-class ClassicSword(Melee):
-    def __init__(self, game, owner):
-        super().__init__(
-            game=game,
-            owner=owner,
-            config=CLASSIC_SWORD
-        )
-
-
-class IronLongAxe(Melee):
-    def __init__(self, game, owner):
-        super().__init__(
-            game=game,
-            owner=owner,
-            config=IRON_LONG_AXE
-        )
-
-
-class RedSword(Melee):
-    def __init__(self, game, owner):
-        super().__init__(
-            game=game,
-            owner=owner,
-            config=RED_SWORD
-        )
-
-
-class IronHammer(Melee):
-    def __init__(self, game, owner):
-        super().__init__(
-            game=game,
-            owner=owner,
-            config=IRON_HAMMER
-        )
-
-
-class DoubleIronAxe(Melee):
-    def __init__(self, game, owner):
-        super().__init__(
-            game=game,
-            owner=owner,
-            config=DOUBLE_IRON_AXE
-        )
-
-
-class WoodClub(Melee):
-    def __init__(self, game, owner):
-        super().__init__(
-            game=game,
-            owner=owner,
-            config=WOOD_CLUB
-        )
-
-
-class DragonSlayer(Melee):
-    def __init__(self, game, owner):
-        super().__init__(
-            game=game,
-            owner=owner,
-            config=DRAGON_SLAYER
-        )

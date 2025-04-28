@@ -15,5 +15,6 @@ class Trinket(Item):
     def use(self):
         """Applies effects to player"""
         self.player.stats[self.stat] += self.value
+        self.player.stats[self.stat] = round(self.player.stats[self.stat], 4)
         print(self.player)
         self.kill()

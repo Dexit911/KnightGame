@@ -1,5 +1,7 @@
 import random
 import arcade
+from arcade import load_texture
+import pyglet
 from core.constance import SCALE
 from core.utils.easing import Easing
 from core.hitboxes import CustomHitBoxes as Ch
@@ -23,6 +25,7 @@ class Item(arcade.Sprite):
 
         """Sounds"""
         self.currency_sound = arcade.load_sound(Pm.common_sound("PickupCoin.wav"))
+        """Texture"""
 
         """Values"""
         self.name = config.get("name")
@@ -41,7 +44,8 @@ class Item(arcade.Sprite):
         self.drop_end_y = 25
 
     def drop(self, position: tuple):
-        offset_position = (random.randint(-20, 20), random.randint(-5, 5))
+        radius = 25
+        offset_position = (random.randint(-radius, radius), random.randint(-radius, radius))
         self.position = Vm.add_vec2(position, offset_position)
         self.drop_start_y += self.center_y
         self.is_dropping = True
@@ -107,5 +111,3 @@ class Coin(Item):
             amount=amount
         )
         self.item_type = data.CURRENCY
-
-

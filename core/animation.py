@@ -1,4 +1,5 @@
 import arcade
+from core.utils.path_manager import PathManager
 
 
 class Animate(arcade.Sprite):
@@ -9,7 +10,7 @@ class Animate(arcade.Sprite):
         self.animate_time = animate_time
         self.counter = 0
 
-    def update_animation(self, delta_time: float = 1/60):
+    def update_animation(self, delta_time: float = 1 / 60):
         if not self.textures:
             return  # No textures to animate
 

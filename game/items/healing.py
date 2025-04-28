@@ -1,4 +1,16 @@
 from game.items.item import Item
+import pyglet.gl
+from arcade import load_texture
+from core.utils.path_manager import PathManager as Pm
+
+texture = load_texture(Pm.trinket_img("HealthAmulet.png"))
+gl_texture = texture.t
+
+
+
+
+
+
 
 
 class Healing(Item):

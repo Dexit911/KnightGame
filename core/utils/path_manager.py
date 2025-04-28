@@ -42,15 +42,19 @@ class PathManager:
 
     @staticmethod
     def tile_img(*name):
-        return PathManager.img("terrain", "tile", *name)
+        return PathManager.img("prefab", "tile", *name)
 
     @staticmethod
     def object_img(*name):
-        return PathManager.img("terrain", "object", *name)
+        return PathManager.img("prefab", "object", *name)
 
     @staticmethod
     def structure_img(*name):
-        return PathManager.img("terrain", "object", "structure", *name)
+        return PathManager.img("prefab", "object", "structure", *name)
+
+    @staticmethod
+    def cursor_img(*name):
+        return PathManager.img("cursor", *name)
 
     """Sub-path methods, ad more if needed /SOUND"""
 

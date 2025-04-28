@@ -1,45 +1,43 @@
 import arcade
-
-print(arcade.__version__)
-import itertools
-from core.constance import *
 from game.player.player import *
 from game.object.object import *
 from core.camera import *
 from game.enemy.enemy import Enemy
-import time
-from game.weapon.weapon import Weapon
+from game.cursor.cursor import Cursor
+from game.object.interactable import Chest
+
+print(arcade.__version__)
 
 """
-Problems:
-Implements:
+TODOLIST
+Fixes: 
+- Change_layer for weapon class
+- Optimize the scripts (update). Cache, multithreading for loading assets. 
 
- * Drop and pickup other weapon
- 
- * slow idle movement enemy 
- * path finding for enemies
- * make that the idle movement only happens in a radius, to prevent chilling around the whole map.
- * Fix pixelart filtering 
- 
- * adjust layer, make the bottom hit box y coridnate for layering
- 
- * overall enemy AI, and make a good flexible enemy class.
- 
- Class Enemy
- construct:
- hp, damage, image, behaviour_mode, x, y, drop, speed.
- 
- Methods:
- Path finding
- Behaviour
- Attack
- On
+Implements to do:
+- Make text appear with name of the cursor is over
+- Make a custom font for the game
+- Make a Npc class
+- Setup drop loot settings/ loot table
+
+Future Plans: 
+- Make map generation 
+- Make custom map editor (In progress)
+
+
+
+
 """
 
 
 class Game(arcade.Window):
     def __init__(self):
-        super().__init__(width=SCREEN_WIDTH, height=SCREEN_HEIGHT, title=TITLE, fullscreen=False)
+        super().__init__(
+            width=WINDOW_WIDTH,
+            height=WINDOW_HEIGHT,
+            title=TITLE,
+            fullscreen=False,
+        )
 
         self.tile_mapping = {
             "P": Path,
@@ -56,18 +54,26 @@ class Game(arcade.Window):
 
     def setup(self):
         print(arcade.__version__)
+        self.set_mouse_visible(False)
+
         """Sprite Lists"""
+        # Draw -----------------------------------------
         self.layer_adjusted_sprites = arcade.SpriteList()
+        # ----------------------------------------------
         self.sprite_list = arcade.SpriteList()
-        self.moving_entities = arcade.SpriteList()
         self.enemy_list = arcade.SpriteList()
 
+        """Background, obstacles"""
         self.obstacle_list = arcade.SpriteList()
         self.background_list = arcade.SpriteList()
 
+        """Items, Weapons, interactable"""
         self.item_list = arcade.SpriteList()
         self.weapon_list = arcade.SpriteList()
         self.throwable_list = arcade.SpriteList()
+        self.interactable_list = arcade.SpriteList()
+
+        self.cursor_list = arcade.SpriteList()
 
         """Map"""
         self.tile_map = TILE_MAP
@@ -84,11 +90,18 @@ class Game(arcade.Window):
         """Physics"""
         self.collision_engine = arcade.PhysicsEngineSimple(self.player, self.obstacle_list)
 
+        """Mouse"""
         self.mouse_x = 0
         self.mouse_y = 0
         self.mouse_pos = (self.mouse_x, self.mouse_y)
-
         self.mouse_world = self.camera.get_mouse_world(self.mouse_pos)
+
+        """Cursor"""
+        self.cursor = Cursor(self)
+        self.cursor_list.append(self.cursor)
+
+        """Debug Spawn"""
+        Chest(self).spawn((0, 0))
 
     def create_tile_map(self):
         """Create Objects for different char"""
@@ -107,9 +120,11 @@ class Game(arcade.Window):
         """Draw all elements"""
         self.background_list.draw()
         self.item_list.draw()
-
         self.sprite_list.draw()
         self.layer_adjusted_sprites.draw()
+
+
+        self.cursor_list.draw()
 
         """Hitboxes"""
         """
@@ -132,11 +147,15 @@ class Game(arcade.Window):
         """Update Player"""
         self.player.on_update()
 
+        """Update Cursor"""
+        self.cursor.on_update()
+
         """Update all groups"""
         for enemy in self.enemy_list: enemy.on_update()
         for item in self.item_list: item.on_update()
         for weapon in self.weapon_list: weapon.on_update()
         for throwable in self.throwable_list: throwable.on_update()
+        for interactable in self.interactable_list: interactable.on_update()
 
         self.collision_engine.update()
 
@@ -147,12 +166,14 @@ class Game(arcade.Window):
         """Handles key presses"""
         self.player.keys.add(key)
         self.player.weapon.keys.add(key)
+        self.cursor.keys.add(key)
 
     def on_key_release(self, key, modifiers):
         """Handles key releases"""
         if key in self.player.keys:
             self.player.keys.remove(key)
             self.player.weapon.keys.discard(key)
+            self.cursor.keys.discard(key)
 
     def on_mouse_motion(self, x: int, y: int, dx: int, dy: int):
         """Track mouse position"""
