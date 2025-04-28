@@ -20,7 +20,8 @@ print(arcade.__version__)
 TODOLIST
 Fixes: 
 - Change_layer for weapon class
-- Optimize the scripts (update). Cache, multithreading for loading assets. 
+- Optimize the scripts (update). Cache, multithreading for loading assets.
+- Make the adjust layer that is used once a staticmethod 
 
 Implements to do:
 - Make text appear with name of the cursor is over
@@ -145,10 +146,9 @@ class Game(arcade.Window):
         """for weapon in self.weapon_list:
             weapon.ghost_hitbox.draw_hit_box(color=arcade.color.RED)"""
         stop = time.time()
-        print(f"draw time: {stop - start}")
+        #print(f"draw time: {stop - start}")
 
     def on_update(self, delta_time):
-        print(arcade.get_fps())
         """Update Camera"""
         self.camera.update()
 

@@ -16,7 +16,7 @@ class Npc(Interactable):
         self.type = inter_data.NPC
 
     def talk(self):
-        pass
+        print("talking yoooo")
 
 
 class BlackSmith(Npc):
