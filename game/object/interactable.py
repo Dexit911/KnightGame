@@ -1,25 +1,23 @@
-import arcade
 from core.utils.path_manager import PathManager as Pm
 from game.object import interactable_data as inter_data
-from game.items import item_data as item_data
 from game.items.item_factory import ItemFactory
 from core.constance import *
+from core.animation import Animate
 
 
-
-class Interactable(arcade.Sprite):
+class Interactable(Animate):
     def __init__(self, game, path):
         super().__init__(
-            path_or_texture=path,
+            img=path,
             scale=SCALE
         )
         """Connect to game, draw and update group"""
         self.game = game
         self.draw_group = self.game.layer_adjusted_sprites
         self.draw_group.append(self)
-
         self.update_group = self.game.interactable_list
         self.update_group.append(self)
+
         """Type"""
         self.type = None
 
@@ -34,7 +32,8 @@ class Interactable(arcade.Sprite):
                 self.talk()
 
     def on_update(self):
-        pass
+        if self.textures:
+            self.update_animation()
 
 
 class Chest(Interactable):
@@ -53,7 +52,4 @@ class Chest(Interactable):
             ItemFactory.create_trinket(game, "kunai_charm")
         ]
         for item in items: item.drop(self.position)
-        #self.kill()
-
-
-
+        # self.kill()

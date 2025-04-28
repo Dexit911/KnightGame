@@ -27,7 +27,7 @@ class Cursor(arcade.Sprite):
         """State"""
         self.state = "targeting"
 
-        self.interact_radius = 60.
+        self.interact_radius = 50
         self.nearby_interactables = []
 
     def on_update(self):
@@ -52,7 +52,6 @@ class Cursor(arcade.Sprite):
 
     def update_input(self):
         if arcade.key.F in self.keys:
-            print("yo")
             if self.nearby_interactables:
                 obj = self.nearby_interactables[0]
                 obj.interact()

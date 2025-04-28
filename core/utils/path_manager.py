@@ -21,6 +21,10 @@ class PathManager:
     """Sub-path methods, ad more if needed /IMG"""
 
     @staticmethod
+    def player_img(*name):
+        return PathManager.img("player", *name)
+    # Items ------------------------------------------------------------------
+    @staticmethod
     def weapon_img(*name):
         return PathManager.img("weapon", *name)
 
@@ -36,10 +40,7 @@ class PathManager:
     def heal_img(*name):
         return PathManager.img("item", "heal", *name)
 
-    @staticmethod
-    def player_img(*name):
-        return PathManager.img("player", *name)
-
+    # Terrain ---------------------------------------------------------------
     @staticmethod
     def tile_img(*name):
         return PathManager.img("prefab", "tile", *name)
@@ -51,6 +52,17 @@ class PathManager:
     @staticmethod
     def structure_img(*name):
         return PathManager.img("prefab", "object", "structure", *name)
+
+    # NPC -------------------------------------------------------------------
+    @staticmethod
+    def npc_img(*name):
+        return PathManager.img("npc", *name)
+
+    @staticmethod
+    def blacksmith_img(*name):
+        return PathManager.npc_img("blacksmith", *name)
+
+    # -----------------------------------------------------------------------
 
     @staticmethod
     def cursor_img(*name):

@@ -7,7 +7,7 @@ class Camera:
     def __init__(self, game, smooth_speed=0.2):
         self.game = game
         self.camera = arcade.Camera2D()
-        self.camera.zoom = 1.0
+        self.camera.zoom = ZOOM
         self.smooth_speed = smooth_speed
         self.shake_timer = 0
         self.shake_strength = 0

@@ -1,11 +1,18 @@
 import arcade
+# Player-related
 from game.player.player import *
+# Object-related
 from game.object.object import *
-from core.camera import *
-from game.enemy.enemy import Enemy
-from game.cursor.cursor import Cursor
 from game.object.interactable import Chest
+from game.object.npc.npc import BlackSmith
+# Enemy-related
+from game.enemy.enemy import Enemy
+# Core systems
+from core.camera import *
 from core.utils.path_manager import PathManager as Pm
+# UI and input
+from game.cursor.cursor import Cursor
+import time
 
 print(arcade.__version__)
 
@@ -24,10 +31,6 @@ Implements to do:
 Future Plans: 
 - Make map generation 
 - Make custom map editor (In progress)
-
-
-
-
 """
 
 
@@ -103,7 +106,7 @@ class Game(arcade.Window):
 
         """Debug Spawn"""
         Chest(self).spawn((0, 0))
-
+        BlackSmith(self).spawn((0, 100))
 
         """Sound"""
         self.song = arcade.load_sound(Pm.sound("main_theme.mp3"))
@@ -119,6 +122,7 @@ class Game(arcade.Window):
                     self.tile_mapping[column](self, j, i)
 
     def on_draw(self):
+        start = time.time()
         """Render every frame"""
         self.clear()  # Clear the screen every frame
         self.camera.use()
@@ -132,14 +136,16 @@ class Game(arcade.Window):
         self.cursor_list.draw()
 
         """Hitboxes"""
-        """
-        self.obstacle_list.draw_hit_boxes()
+
+        # .obstacle_list.draw_hit_boxes()
         self.player.draw_hit_box()
-        self.item_list.draw_hit_boxes()
+        # self.item_list.draw_hit_boxes()
         self.enemy_list.draw_hit_boxes()
 
-        for weapon in self.weapon_list:
+        """for weapon in self.weapon_list:
             weapon.ghost_hitbox.draw_hit_box(color=arcade.color.RED)"""
+        stop = time.time()
+        print(f"draw time: {stop - start}")
 
     def on_update(self, delta_time):
         print(arcade.get_fps())

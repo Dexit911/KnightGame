@@ -11,7 +11,6 @@ COIN = {
     "name": "Coin",
     "description": "Very shiny, probably valuable.",
 }
-
 TRINKETS = {
     "haste_amulet": {
         "path": Pm.trinket_img("HasteAmulet.png"),
