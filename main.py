@@ -1,17 +1,13 @@
-import arcade
-# Player-related
 from game.player.player import *
-# Object-related
 from game.object.object import *
 from game.object.interactable import Chest
+from core.data.map_data import *
 from game.object.npc.npc import BlackSmith
-# Enemy-related
-from game.enemy.enemy import Enemy
-# Core systems
 from core.camera import *
 from core.utils.path_manager import PathManager as Pm
-# UI and input
 from game.cursor.cursor import Cursor
+from game.map.tile_map import TileMap
+from core.constance import *
 import time
 
 print(arcade.__version__)
@@ -31,7 +27,7 @@ Implements to do:
 
 Future Plans: 
 - Make map generation 
-- Make custom map editor (In progress)
+- Make custom map editor (In progress) maybe +-
 """
 
 
@@ -43,19 +39,6 @@ class Game(arcade.Window):
             title=TITLE,
             fullscreen=False,
         )
-
-        self.tile_mapping = {
-            "P": Path,
-            "E": Enemy,
-            "B": Bush,
-            "S": BigStone,
-            "s": SmallStone,
-            "W": HighWall,
-            "w": Wall,
-            ">": StoneStairs,
-            "^": SmallPole,
-            "r": RuneStone
-        }
 
     def setup(self):
         print(arcade.__version__)
@@ -81,8 +64,7 @@ class Game(arcade.Window):
         self.cursor_list = arcade.SpriteList()
 
         """Map"""
-        self.tile_map = TILE_MAP
-        self.create_tile_map()
+        TileMap.create_tile_map(self, TILE_MAPS["start_level"]["base"])
 
         """Camera"""
         self.camera = Camera(self)
@@ -106,21 +88,12 @@ class Game(arcade.Window):
         self.cursor_list.append(self.cursor)
 
         """Debug Spawn"""
-        Chest(self).spawn((0, 0))
-        BlackSmith(self).spawn((0, 100))
+        Chest(self).spawn((50, 150))
+        BlackSmith(self).spawn((50, 100))
 
         """Sound"""
         self.song = arcade.load_sound(Pm.sound("main_theme.mp3"))
         arcade.play_sound(self.song, volume=0.2, loop=True)
-
-    def create_tile_map(self):
-        """Create Objects for different char"""
-        for i, row in enumerate(self.tile_map):
-            for j, column in enumerate(row):
-                if column != "#":
-                    Grass(self, j, i)
-                if column in self.tile_mapping:
-                    self.tile_mapping[column](self, j, i)
 
     def on_draw(self):
         start = time.time()
@@ -138,7 +111,7 @@ class Game(arcade.Window):
 
         """Hitboxes"""
 
-        # .obstacle_list.draw_hit_boxes()
+        self.obstacle_list.draw_hit_boxes()
         self.player.draw_hit_box()
         # self.item_list.draw_hit_boxes()
         self.enemy_list.draw_hit_boxes()
@@ -146,25 +119,21 @@ class Game(arcade.Window):
         """for weapon in self.weapon_list:
             weapon.ghost_hitbox.draw_hit_box(color=arcade.color.RED)"""
         stop = time.time()
-        #print(f"draw time: {stop - start}")
+        print(f"draw time: {stop - start}")
 
     def on_update(self, delta_time):
         """Update Camera"""
         self.camera.update()
-
         """Update Mouse cord"""
         self.mouse_world = self.camera.get_mouse_world(self.mouse_pos)
-
         """Update Player"""
-        self.player.on_update()
-
+        self.player.on_update(delta_time)
         """Update Cursor"""
         self.cursor.on_update()
-
         """Update all groups"""
-        for enemy in self.enemy_list: enemy.on_update()
+        for enemy in self.enemy_list: enemy.on_update(delta_time)
         for item in self.item_list: item.on_update()
-        for weapon in self.weapon_list: weapon.on_update()
+        for weapon in self.weapon_list: weapon.on_update(delta_time)
         for throwable in self.throwable_list: throwable.on_update()
         for interactable in self.interactable_list: interactable.on_update()
 

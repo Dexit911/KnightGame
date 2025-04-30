@@ -1,13 +1,11 @@
 import random
 import arcade
-from arcade import load_texture
-import pyglet
 from core.constance import SCALE
 from core.utils.easing import Easing
 from core.hitboxes import CustomHitBoxes as Ch
 from core.utils.vector_manager import VectorManager as Vm
 from core.utils.path_manager import PathManager as Pm
-from game.items import item_data as data
+from core.data import item_data as data
 
 """Name, is key to texture path"""
 
@@ -59,6 +57,7 @@ class Item(arcade.Sprite):
 
             if progress >= 1:
                 self.is_dropping = False
+
 
     def on_picked_up(self):
         match self.item_type:

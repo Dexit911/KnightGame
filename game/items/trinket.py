@@ -1,5 +1,5 @@
 from game.items.item import Item
-from game.items import item_data as data
+from core.data import item_data as data
 
 
 class Trinket(Item):

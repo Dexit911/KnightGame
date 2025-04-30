@@ -149,3 +149,37 @@ class Enemy(MovingEntity):
             self.alert_movement()
         else:
             self.idle_movement()
+
+
+class EnemyTest(MovingEntity):
+    pass
+
+
+class EnemyAi(MovingEntity):
+    pass
+
+
+class PathfindingManager:
+    def __init__(self, game):
+        self.game = game
+        self.grid = self.create_grid()
+
+    def create_grid(self):
+        # Build the walkable/non-walkable grid from the map
+        pass
+
+    def is_walkable(self, x, y):
+        # Return True if tile (x,y) can be walked
+        pass
+
+    def neighbors(self, x, y):
+        # Return valid neighbor tiles
+        pass
+
+    def find_path(self, start, goal):
+        # Launch A* search (maybe in multiprocessing)
+        pass
+
+    def update_grid(self):
+        # If the world changes, update the walkability map
+        pass

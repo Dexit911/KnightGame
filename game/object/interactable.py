@@ -1,5 +1,6 @@
 from core.utils.path_manager import PathManager as Pm
-from game.object import interactable_data as inter_data
+from core.utils.helper_tools import HelperTools
+from core.data import interactable_data as inter_data
 from game.items.item_factory import ItemFactory
 from core.constance import *
 from core.animation import Animate
@@ -23,6 +24,7 @@ class Interactable(Animate):
 
     def spawn(self, position: tuple):
         self.position = position
+        HelperTools.adjust_layer(self)
 
     def interact(self):
         match self.type:
@@ -48,8 +50,14 @@ class Chest(Interactable):
         game = self.game
         items = [
             ItemFactory.create_trinket(game, "haste_amulet"),
+            ItemFactory.create_trinket(game, "haste_amulet"),
+            ItemFactory.create_trinket(game, "haste_amulet"),
             ItemFactory.create_trinket(game, "dash_feather"),
-            ItemFactory.create_trinket(game, "kunai_charm")
+            ItemFactory.create_trinket(game, "dash_feather"),
+            ItemFactory.create_trinket(game, "dash_feather"),
+            ItemFactory.create_trinket(game, "kunai_charm"),
+            ItemFactory.create_trinket(game, "kunai_charm"),
+            ItemFactory.create_trinket(game, "kunai_charm"),
         ]
         for item in items: item.drop(self.position)
-        # self.kill()
+        self.kill()

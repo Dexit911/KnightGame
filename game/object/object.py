@@ -1,130 +1,68 @@
-from core.animation import Animate
-from arcade.hitbox import HitBox
-from core.hitboxes import CustomHitBoxes as Ch
-from core.constance import *
-from core.utils.path_manager import PathManager as Pm
+import arcade.hitbox
 import random
+from core.animation import Animate
+from core.constance import *
+from core.utils.helper_tools import HelperTools
+from core.data import map_data
+from core.hitboxes import CustomHitBoxes as Ch
 
 
 class Object(Animate):
     """Basic object"""
 
-    def __init__(self, game, x, y, path):
+    def __init__(self, game, position, path):
         super().__init__(img=path, scale=SCALE)
         self.game = game
-        self.center_x = x * TILE_SIZE
-        self.center_y = y * TILE_SIZE
+        self.center_x = position[0] * TILE_SIZE
+        self.center_y = position[1] * TILE_SIZE
 
 
 class Obstacle(Object):
     """Has hit box, and a specific layer"""
 
-    def __init__(self, game, x, y, path, offset: int = 0):
-        super().__init__(game, x, y, path)
-        self.draw_group = self.game.layer_adjusted_sprites
-        self.update_group = self.game.obstacle_list
-
-        self.update_group.append(self)
-        self.draw_group.append(self)
-
-        self.hit_boxes = Ch(x * TILE_SIZE, y * TILE_SIZE)
-
-        self.offset = offset
-        self.adjust_layer(self.offset)
-
-    def adjust_layer(self, offset: int = 0) -> None:
-        """
-        Adjusting the layer based on sprites y cord,
-        Apply offset to manually adjust layering,
-        """
-        sprite_list = self.draw_group
-        sprite_list.remove(self)
-        for i, sprite in enumerate(sprite_list):
-            if self.center_y + offset > sprite.center_y:
-                index = i
-                break
+    def __init__(self, game, position, path, hitbox, offset):
+        super().__init__(game, position, path)
+        # UPDATE GROUPS -----------------------------------------
+        self.draw_group = self.game.layer_adjusted_sprites  # ---
+        self.update_group = self.game.obstacle_list  # ----------
+        self.draw_group.append(self)  # -------------------------
+        self.update_group.append(self)  # -----------------------
+        # HIT BOX, OFFSET ---------------------------------------
+        if hitbox is None:
+            self.hit_box = Ch(self.center_x, self.center_y).default
         else:
-            index = len(sprite_list)  # If not found, put at the end
-        sprite_list.insert(index, self)  # Insert at correct layer position
-
-
-"""BACKGROUND"""
+            self.hit_box = Ch().get_hitbox(hitbox, self.position)
+        if offset is None:
+            self.offset = 0
+        else:
+            self.offset = offset
+        # ADJUST LAYER -------------------------------------------
+        HelperTools.adjust_layer(self, self.offset)
 
 
 class Ground(Object):
     """Is only for background"""
 
-    def __init__(self, game, x, y, path):
-        super().__init__(game, x, y, path)
+    def __init__(self, game, position, path):
+        super().__init__(game, position, path)
         self.game.background_list.append(self)
 
 
-class Grass(Ground):
-    def __init__(self, game, x, y):
-        self.i = random.randint(1, 5)
-        self.path = Pm.tile_img("grass", f"GrassTile{self.i}.png")
-        super().__init__(game, x, y, self.path)
-
-
-class Path(Ground):
-    def __init__(self, game, x, y):
-        self.i = random.randint(1, 5)
-        self.path = Pm.tile_img("path", f"PathTile{self.i}.png")
-        super().__init__(game, x, y, self.path)
-
-
-class SmallStone(Ground):
-    def __init__(self, game, x, y):
-        self.path = Pm.object_img("stone", "SmallStone1.png")
-        super().__init__(game, x, y, self.path)
-
-
-class StoneStairs(Ground):
-    def __init__(self, game, x, y):
-        self.path = Pm.structure_img("StoneStairs1.png")
-        super().__init__(game, x, y, self.path)
-
-
-"""OBSTACLES"""
-
-
-class Bush(Obstacle):
-    def __init__(self, game, x, y):
-        self.path = Pm.object_img("bush", "Bush1.png")
-        super().__init__(game, x, y, self.path)
-
-        self.hit_box = self.hit_boxes.default
-
-
-class BigStone(Obstacle):
-    def __init__(self, game, x, y):
-        self.path = Pm.object_img("stone", "BigStone1.png")
-        super().__init__(game, x, y, self.path, offset=40)
-
-        self.hit_box = self.hit_boxes.big_stone
-
-
-class Wall(Obstacle):
-    def __init__(self, game, x, y):
-        self.path = Pm.structure_img("WallTile.png")
-        super().__init__(game, x, y, self.path)
-
-
-class HighWall(Obstacle):
-    def __init__(self, game, x, y):
-        self.path = Pm.structure_img("HighWall.png")
-        super().__init__(game, x, y, self.path)
-
-
-class SmallPole(Obstacle):
-    def __init__(self, game, x, y):
-        self.path = Pm.structure_img("SmallPole.png")
-        super().__init__(game, x, y, self.path, offset=40)
-        self.hit_box = self.hit_boxes.stone_small_pole
-
-
-class RuneStone(Obstacle):
-    def __init__(self, game, x, y):
-        self.path = Pm.structure_img("RuneStone1.png")
-        super().__init__(game, x, y, self.path)
-        self.hit_box = self.hit_boxes.rune_stone
+class ObjectFactory:
+    """Create Object"""
+    @staticmethod
+    def spawn_object(game, position, object_type, id):
+        data = map_data.TILE_DATA[object_type][id]
+        texture_path = data["texture_path"]
+        # If texture is a list, take random path from it
+        if isinstance(texture_path, list):
+            texture_path = random.choice(texture_path)
+        hit_box = data.get("hitbox")
+        offset = data.get("offset")
+        match object_type:
+            case "ground":
+                return Ground(game, position, texture_path)
+            case "obstacle":
+                return Obstacle(game, position, texture_path, hit_box, offset)
+            case "interactable":
+                pass

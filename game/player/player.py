@@ -55,8 +55,8 @@ class Player(MovingEntity):
             "speed_multi": 1,
 
             # Dash--------------
-            "dash_power": 10,
-            "dash_cd": 30,
+            "dash_power": 40,
+            "dash_cd": 0.8,
             "dash_cd_multi": 0,
 
             # Critical damage---
@@ -64,7 +64,7 @@ class Player(MovingEntity):
             "critical_mult": 0,
 
             # Throw-------------
-            "throw_cd": 50,
+            "throw_cd": 0.5,
             "throw_cd_multi": 0,  # %
 
             # Other-------------
@@ -80,7 +80,7 @@ class Player(MovingEntity):
         self.cd = CooldownManager()
         self.cd.add("dash", self.stats["dash_cd"])
         self.cd.add("throw", self.stats["throw_cd"])
-        self.cd.add("weapon_switch", 15)
+        self.cd.add("weapon_switch", 0.2)
 
         """Update Methods"""
         self.update_methods = [
@@ -111,7 +111,7 @@ class Player(MovingEntity):
             self.textures = self.idle3_fframes
 
     def setup(self):
-        self.position = (0, 0)
+        self.position = (50, 100)
         self.setup_textures()
 
     def go_direction(self, direction):

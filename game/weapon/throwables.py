@@ -1,8 +1,7 @@
 import arcade
 from core.utils.path_manager import PathManager as Pm
 from core.utils.vector_manager import VectorManager as Vm
-from core.hitboxes import CustomHitBoxes as Ch
-from game.weapon import weapon_data as data
+from core.data import weapon_data as data
 
 from game.weapon.weapon import Weapon
 

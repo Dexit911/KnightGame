@@ -1,7 +1,6 @@
-from game.items import item_data as data
 from game.items.trinket import Trinket
 from game.weapon.weapon import Melee
-from game.weapon import weapon_data
+from core.data import weapon_data, item_data as data
 
 
 class ItemFactory:

@@ -1,6 +1,6 @@
 import arcade
 
-from game.object import interactable_data as inter_data
+from core.data import interactable_data as inter_data
 from game.object.interactable import Interactable
 from core.utils.path_manager import PathManager as Pm
 

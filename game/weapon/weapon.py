@@ -4,10 +4,9 @@ from arcade.hitbox import HitBox
 from core.utils.hitbox_manager import HitboxManager as Hm
 from core.utils.vector_manager import VectorManager as Vm
 from core.cooldown_manager import CooldownManager as Cm
-from core.simple_animation import SimpleAnimation
 from core.utils.easing import Easing
 from core.constance import *
-from game.weapon.weapon_data import *
+from core.data.weapon_data import *
 
 
 class Weapon(arcade.Sprite):
@@ -54,10 +53,14 @@ class Weapon(arcade.Sprite):
             if Hm.check_overlap(hitbox, enemy) and not enemy.took_damage:
                 enemy.get_hit(self)
 
-    def on_update(self):
+    def on_update(self, dt):
+        # Update every method in the list
         for method in self.update_methods:
             if callable(method):
-                method()
+                try:
+                    method(dt)
+                except TypeError:
+                    method()
         if not self.alive:
             self.die()
         super().update()
@@ -170,10 +173,10 @@ class Melee(Weapon):
         elif self.owner.dir[0] == "right":
             self.texture = self.flipped_texture
 
-    def update_methods_test(self):
+    def update_methods_test(self, dt):
         self.follow_owner()
         self.update_dir()
-        self.cooldowns.tick_all()
+        self.cooldowns.tick_all(dt)
 
         if arcade.key.SPACE in self.keys:
             self.hit()

@@ -64,7 +64,7 @@ class MovingEntity(Animate):
             self.impulse_y = 0
             self.center_y = pre_y  # prevent bad layer shift
 
-    def update_impulse(self):
+    def update_impulse(self, dt):
         """Updates Impulse - checks: If layer adjust is needed, if you collide and need to stop"""
         if self.in_impulse:
             # Store position before movement
@@ -92,8 +92,9 @@ class MovingEntity(Animate):
                 self.impulse_y = 0
 
         # Impulse decay
-        self.impulse_x *= 0.9
-        self.impulse_y *= 0.9
+        decay = 0.9 ** (dt * 60)
+        self.impulse_x *= decay
+        self.impulse_y *= decay
 
         if abs(self.impulse_x) < 0.1:
             self.impulse_x = 0
@@ -109,18 +110,23 @@ class MovingEntity(Animate):
         else:
             self.update_methods.append(method_or_list)
 
-    def on_update(self) -> None:
+    def on_update(self, dt) -> None:
         """Update happens every frame"""
         super().update()
-
         self.update_movement_state()
-        self.update_impulse()
+
+        if self.in_impulse:
+            self.update_impulse(dt)
+
         self.update_layer_adjust()
 
         # Update every method in the list
         for method in self.update_methods:
             if callable(method):
-                method()
+                try:
+                    method(dt)
+                except TypeError:
+                    method()
 
     def update_movement_state(self):
         self.change_x, self.change_y = 0, 0
@@ -155,6 +161,3 @@ class MovingEntity(Animate):
         if self in self.draw_group:
             self.draw_group.remove(self)
         self.kill()  # Remove from the game
-
-
-
