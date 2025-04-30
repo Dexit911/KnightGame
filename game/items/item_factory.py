@@ -4,6 +4,7 @@ from core.data import weapon_data, item_data as data
 
 
 class ItemFactory:
+    """Instantiating weapon, items, soon other stuff from configs """
     @staticmethod
     def create_trinket(game, trinket_id) -> Trinket:
         return Trinket(game, data.TRINKETS[trinket_id])

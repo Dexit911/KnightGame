@@ -1,4 +1,6 @@
 class Easing:
+    """CSS ctrl-c, ctrl-v. Methods used for animation"""
+
     @staticmethod
     def linear(t):
         return t
@@ -80,5 +82,3 @@ class Easing:
             return Easing.ease_out(t * 2)
         else:
             return Easing.ease_out(2 - t * 2)
-
-

@@ -3,6 +3,7 @@ from core.constance import *
 
 
 class VectorManager:
+    """Handles simple often used calculations with tuples"""
 
     @staticmethod
     def add_vec2(a, b):
@@ -40,7 +41,7 @@ class VectorManager:
     def get_angle(a: tuple, b: tuple) -> float:
         """
         :param a: from pos
-         :param b: to pos
+        :param b: to pos
         """
         dv = (a[0] - b[0], a[1] - b[1])
         return math.degrees(math.atan2(dv[1], dv[0]))

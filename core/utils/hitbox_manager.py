@@ -3,6 +3,10 @@ import arcade
 
 
 class HitboxManager:
+    """
+    Handles hard types of hit-boxes.
+    Adds some of mine collision logic.
+    """
 
     @staticmethod
     def circle(center: tuple, radius: float, resolution: int = 16) -> list:

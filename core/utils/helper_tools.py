@@ -1,4 +1,5 @@
 class HelperTools:
+    """Some random methods that is use here and there"""
     @staticmethod
     def adjust_layer(self, offset=0):
         """Adjusting the layer based on sprites y cord"""

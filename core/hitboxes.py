@@ -15,26 +15,6 @@ class CustomHitBoxes:
             (-self.scale + x, self.scale + y)  # Top-left
         ])
 
-        self.big_stone = HB([
-            (-10 + x, -20 + y),
-            (10 + x, -20 + y),
-            (30 + x, 0 + y),
-            (-30 + x, 0 + y)
-        ])
-
-        self.stone_small_pole = HB([
-            (-23 + x, -22 + y),  # Down left corner
-            (23 + x, -22 + y),  # Down right corner
-            (23 + x, 10 + y),  # Upper left corner
-            (-23 + x, 10 + y)  # Upper right corner
-        ])
-
-        self.rune_stone = HB([
-            (-10 + x, -22 + y),  # Down left corner
-            (10 + x, -22 + y),  # Down right corner
-            (10 + x, -17 + y),  # Upper left corner
-            (-10 + x, -17 + y)  #
-        ])
 
         """Static hit boxes that in middle of the screen"""
         self.sword = HB([
@@ -59,26 +39,10 @@ class CustomHitBoxes:
         ])
 
         self.point_list = {
-            "big_stone": [(-10, -20),
-                          (10, -20),
-                          (30, 0),
-                          (-30, 0)],
-
-            "rune_stone": [(-10, -22),
-                           (10, -22),
-                           (10, -17),
-                           (-10, -17)],
-
-            "bush": [(-32, -32),
-                     (32, -32),
-                     (32, 32),
-                     (-32, 32)],
-
-            "small_pole": [(-23, -22),
-                           (23, -22),
-                           (23, 10),
-                           (-23, 10)]
-
+            "big_stone": [(-10, -20), (10, -20), (30, 0), (-30, 0)],
+            "rune_stone": [(-10, -22), (10, -22), (10, -17), (-10, -17)],
+            "bush": [(-32, -32), (32, -32), (32, 32), (-32, 32)],
+            "small_pole": [(-23, -22), (23, -22), (23, 10), (-23, 10)]
         }
 
     def get_hitbox(self, name, position: tuple) -> HB:

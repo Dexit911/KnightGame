@@ -22,12 +22,12 @@ class Obstacle(Object):
 
     def __init__(self, game, position, path, hitbox, offset):
         super().__init__(game, position, path)
-        # UPDATE GROUPS -----------------------------------------
-        self.draw_group = self.game.layer_adjusted_sprites  # ---
-        self.update_group = self.game.obstacle_list  # ----------
-        self.draw_group.append(self)  # -------------------------
-        self.update_group.append(self)  # -----------------------
-        # HIT BOX, OFFSET ---------------------------------------
+        # UPDATE GROUPS ------------------------------------------
+        self.draw_group = self.game.layer_adjusted_sprites
+        self.update_group = self.game.obstacle_list
+        self.draw_group.append(self)
+        self.update_group.append(self)
+        # HIT BOX, OFFSET ----------------------------------------
         if hitbox is None:
             self.hit_box = Ch(self.center_x, self.center_y).default
         else:

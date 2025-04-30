@@ -57,7 +57,19 @@ TILE_TYPES = {
     "E": ""
 }
 # ADD NEW OBJECTS HERE. note: do not give hitbox to obstacle that covers the whole tile --------------------------------
+"""
+GUIDE
+Remember to add a symbol to map parses
+------------------------------------------------------------------
+GROUND: 
+texture_path - if list gets random texture_path
+------------------------------------------------------------------
+OBSTACLE:
+texture_path - same as ground
+hitbox - get the name from core.hitboxes CustomHitBoxes.point_list
+"""
 TILE_DATA = {
+
     "ground": {
         "grass": {"texture_path": [Pm.tile_img("grass", f"GrassTile{i}.png") for i in range(1, 5)]},
         "path": {"texture_path": Pm.tile_img("path", f"PathTile{i}.png") for i in range(1, 5)},
