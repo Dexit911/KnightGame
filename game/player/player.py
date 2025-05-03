@@ -55,7 +55,7 @@ class Player(MovingEntity):
             "speed_multi": 1,
 
             # Dash--------------
-            "dash_power": 40,
+            "dash_power": 15,
             "dash_cd": 0.8,
             "dash_cd_multi": 0,
 
@@ -64,7 +64,7 @@ class Player(MovingEntity):
             "critical_mult": 0,
 
             # Throw-------------
-            "throw_cd": 0.5,
+            "throw_cd": 1,
             "throw_cd_multi": 0,  # %
 
             # Other-------------

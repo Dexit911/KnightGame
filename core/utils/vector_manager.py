@@ -52,3 +52,14 @@ class VectorManager:
         :param b: to pos
         """
         return VectorManager.get_angle(SCREEN_CENTER_POS, b)
+
+    @staticmethod
+    def get_direction(a: tuple, b: tuple) -> tuple:
+        dv = VectorManager.subtract_vec2(a, b)
+        length = math.hypot(*dv)
+        return dv[0] / length, dv[1] / length
+
+    @staticmethod
+    def get_distance(a: tuple, b: tuple):
+        dv = VectorManager.subtract_vec2(a, b)
+        return math.hypot(*dv)

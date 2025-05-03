@@ -5,6 +5,8 @@ from core.constance import *
 from core.utils.helper_tools import HelperTools
 from core.data import map_data
 from core.hitboxes import CustomHitBoxes as Ch
+from game.enemy.enemy import Enemy
+from core.data import enemy_data
 
 
 class Object(Animate):
@@ -52,6 +54,7 @@ class ObjectFactory:
     """Create Object"""
     @staticmethod
     def spawn_object(game, position, object_type, id):
+        print(id)
         data = map_data.TILE_DATA[object_type][id]
         texture_path = data["texture_path"]
         # If texture is a list, take random path from it
@@ -64,5 +67,12 @@ class ObjectFactory:
                 return Ground(game, position, texture_path)
             case "obstacle":
                 return Obstacle(game, position, texture_path, hit_box, offset)
-            case "interactable":
-                pass
+            case "enemy":
+                print("spawned enemy")
+                return Enemy(game, data).spawn(position)
+
+    @staticmethod
+    def spawn_enemy(game, position, id):
+        data = enemy_data.ENEMIES[id]
+        Enemy(game, data).spawn(position)
+

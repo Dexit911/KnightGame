@@ -53,3 +53,27 @@ class HitboxManager:
             if HitboxManager.is_point_in_polygon(point[0], point[1], poly):
                 return True
         return False
+
+    @staticmethod
+    def raycast(origin, direction, max_distance, obstacles, step=4):
+        """
+        Casts a ray from origin in a direction until it hits an obstacle or reaches max_distance.
+
+        origin: (x, y)
+        direction: (dx, dy) — should be normalized
+        max_distance: float
+        obstacles: arcade.SpriteList
+        step: how much to advance per check (smaller = more precise)
+        """
+        x, y = origin
+        dx, dy = direction
+        distance = 0
+
+        while distance < max_distance:
+            point = (x + dx * distance, y + dy * distance)
+
+            if arcade.get_sprites_at_point(point, obstacles):
+                return False  # blocked
+            distance += step
+
+        return True  # line of sight clear

@@ -17,8 +17,8 @@ TILE_MAPS = {
             "w...s..PPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPP..w",
             "w.....PPPPPP...^.B..^.B.B^.BS.^.Bs.^PP.B^s.B.^..Bs^B.B.^.BB.^.B.S^.sB.^.SBs^.BSB^sBB.^B.B.^.B..^.B..^..Bw",
             "w..s.PPP.s..s..........s.......s....PP...s...s.......s...................s...................s....s.....w",
-            "w..s.PP..s.....s....................PP..................s...............................................w",
-            "w..PPP..s...........................PP.....wwwwwwwwwwwwww............E.....E............................w",
+            "w..s.PP..s.....s....................PP..................s.......BBB.....................................w",
+            "w..PPP..s...........................PP.....wwwwwwwwwwwwww.......BBB..E.....E............................w",
             "w...PP..............................PP.....w....E.E.....w.........E...E..E..............................w",
             "w..PP...............................PPP....w...E.E.E....w..............E...E............................w",
             "w..PP................s..............PPPPPPP.PP.P..P.P...w...............................................w",
@@ -26,25 +26,29 @@ TILE_MAPS = {
             "w..PP...s...s.........s....................w......C.....w...............................................w",
             "wwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwww"
         ],
-        "object": "",
+        "object": ["w.....",
+                   ".E....",
+                   "..B..w",
+                   "......"],
+
         "spawn": "",
     }
 }
 # DEFINES THE WALKABLE SUB-GRIDS FOR PATH FINDING ----------------------------------------------------------------------
 TILE_WALK_PROPERTIES = {
-    "G": [[1, 1],  # Ground
+    "G": [[1, 1],
           [1, 1]],
     "W": [[0, 0],  # Wall
           [0, 0]],
     "A": [[1, 1],  # Half
           [0, 0]],
-    "U": [[1, 1],  # Half under
-          [0, 0]],
+    "U": [[0, 0],  # Half under
+          [1, 1]],
 }
 # PARSING METHOD -------------------------------------------------------------------------------------------------------
 TILE_TYPES = {
     # Ground
-    # ".": ["G", "ground", "grass"],
+    ".": ["G", "ground", "grass"],
     "P": ["G", "ground", "path"],
     "s": ["G", "ground", "small_stone"],
     # Obstacles
@@ -52,9 +56,9 @@ TILE_TYPES = {
     "^": ["A", "obstacle", "pole"],
     "S": ["A", "obstacle", "big_stone"],
     "r": ["A", "obstacle", "rune_stone"],
-    "B": ["A", "obstacle", "bush"],
+    "B": ["G", "obstacle", "bush"],
     # Enemy
-    "E": ""
+    "E": ["G", "enemy", "slime"]
 }
 # ADD NEW OBJECTS HERE. note: do not give hitbox to obstacle that covers the whole tile --------------------------------
 """
@@ -102,6 +106,10 @@ TILE_DATA = {
     # DEBUG
     "enemy": {
         "slime": {
+            "texture_path": Pm.img("enemy", "slime", "Slime.png"),
+            "hp": 20,
+            "dmg": 2,
+            "speed": 2
         }
     },
 }

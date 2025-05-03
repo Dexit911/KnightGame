@@ -1,3 +1,5 @@
+import arcade.color
+
 from game.player.player import *
 from game.object.object import *
 from game.object.interactable import Chest
@@ -9,8 +11,6 @@ from game.cursor.cursor import Cursor
 from game.map.tile_map import TileMap
 from core.constance import *
 import time
-
-print(arcade.__version__)
 
 """
 TODOLIST
@@ -42,7 +42,7 @@ class Game(arcade.Window):
 
     def setup(self):
         print(arcade.__version__)
-        self.set_mouse_visible(False)
+        #self.set_mouse_visible(False)
 
         """Sprite Lists"""
         # Draw -----------------------------------------
@@ -64,7 +64,8 @@ class Game(arcade.Window):
         self.cursor_list = arcade.SpriteList()
 
         """Map"""
-        TileMap.create_tile_map(self, TILE_MAPS["start_level"]["base"])
+        self.matrix_map = []
+        TileMap.create_tile_map(self, TILE_MAPS["start_level"]["object"])
 
         """Camera"""
         self.camera = Camera(self)
@@ -92,8 +93,8 @@ class Game(arcade.Window):
         BlackSmith(self).spawn((50, 100))
 
         """Sound"""
-        self.song = arcade.load_sound(Pm.sound("main_theme.mp3"))
-        arcade.play_sound(self.song, volume=0.2, loop=True)
+        """self.song = arcade.load_sound(Pm.sound("main_theme.mp3"))
+        arcade.play_sound(self.song, volume=0.2, loop=True)"""
 
     def on_draw(self):
         start = time.time()
@@ -119,7 +120,9 @@ class Game(arcade.Window):
         """for weapon in self.weapon_list:
             weapon.ghost_hitbox.draw_hit_box(color=arcade.color.RED)"""
         stop = time.time()
-        print(f"draw time: {stop - start}")
+        # print(f"draw time: {stop - start}")
+
+        self.draw_subgrid_lines(self.matrix_map, SUB_TILE_SIZE)
 
     def on_update(self, delta_time):
         """Update Camera"""
@@ -162,6 +165,48 @@ class Game(arcade.Window):
         self.mouse_pos = (x, y)
 
         self.player.update_direction_based_on_mouse(x, y)
+
+    # DEBUG
+
+    def draw_subgrid_lines(self, matrix, sub_tile_size, offset_x=1, offset_y=1):
+        """Draw grid lines for a matrix of sub-tiles with optional offset.
+
+        Args:
+            matrix: 2D matrix representing the grid
+            sub_tile_size: Size of each sub-tile in pixels
+            offset_x: Horizontal offset (negative = left, positive = right)
+            offset_y: Vertical offset (negative = down, positive = up)
+        """
+        rows = len(matrix)
+        cols = len(matrix[0]) if rows > 0 else 0
+
+        # Apply offsets (negative for left/down)
+        x_offset = -offset_x * sub_tile_size
+        y_offset = -offset_y * sub_tile_size
+
+        # Draw horizontal lines (Y changes, X runs full width)
+        for row in range(rows + 1):
+            y = row * sub_tile_size + y_offset
+            arcade.draw_line(
+                start_x=0 + x_offset,
+                start_y=y,
+                end_x=cols * sub_tile_size + x_offset,
+                end_y=y,
+                color=arcade.color.GRAY,
+                line_width=1
+            )
+
+        # Draw vertical lines (X changes, Y runs full height)
+        for col in range(cols + 1):
+            x = col * sub_tile_size + x_offset
+            arcade.draw_line(
+                start_x=x,
+                start_y=0 + y_offset,
+                end_x=x,
+                end_y=rows * sub_tile_size + y_offset,
+                color=arcade.color.GRAY,
+                line_width=1
+            )
 
 
 game = Game()
