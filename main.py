@@ -93,8 +93,8 @@ class Game(arcade.Window):
         BlackSmith(self).spawn((50, 100))
 
         """Sound"""
-        """self.song = arcade.load_sound(Pm.sound("main_theme.mp3"))
-        arcade.play_sound(self.song, volume=0.2, loop=True)"""
+        self.song = arcade.load_sound(Pm.sound("main_theme.mp3"))
+        arcade.play_sound(self.song, volume=0.2, loop=True)
 
     def on_draw(self):
         start = time.time()
@@ -112,17 +112,11 @@ class Game(arcade.Window):
 
         """Hitboxes"""
 
-        self.obstacle_list.draw_hit_boxes()
-        self.player.draw_hit_box()
-        # self.item_list.draw_hit_boxes()
-        self.enemy_list.draw_hit_boxes()
-
         """for weapon in self.weapon_list:
             weapon.ghost_hitbox.draw_hit_box(color=arcade.color.RED)"""
         stop = time.time()
         # print(f"draw time: {stop - start}")
 
-        self.draw_subgrid_lines(self.matrix_map, SUB_TILE_SIZE)
 
     def on_update(self, delta_time):
         """Update Camera"""
@@ -132,7 +126,7 @@ class Game(arcade.Window):
         """Update Player"""
         self.player.on_update(delta_time)
         """Update Cursor"""
-        self.cursor.on_update()
+        self.cursor.on_update(delta_time)
         """Update all groups"""
         for enemy in self.enemy_list: enemy.on_update(delta_time)
         for item in self.item_list: item.on_update()
@@ -141,9 +135,8 @@ class Game(arcade.Window):
         for interactable in self.interactable_list: interactable.on_update()
 
         self.collision_engine.update()
-
-        # for sprite in self.sprite_list:
-        # sprite.on_update()
+        stop = time.time()
+        self.update_debug(False)
 
     def on_key_press(self, key, modifiers):
         """Handles key presses"""
@@ -207,6 +200,19 @@ class Game(arcade.Window):
                 color=arcade.color.GRAY,
                 line_width=1
             )
+
+    def update_debug(self, on=False):
+        if on:
+            self.obstacle_list.draw_hit_boxes()
+            self.player.draw_hit_box()
+            self.item_list.draw_hit_boxes()
+            self.enemy_list.draw_hit_boxes()
+            self.draw_subgrid_lines(self.matrix_map, SUB_TILE_SIZE)
+
+            """for weapon in self.weapon_list:
+                weapon.ghost_hitbox.draw_hit_box(color=arcade.color.RED)"""
+
+
 
 
 game = Game()

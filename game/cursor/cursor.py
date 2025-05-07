@@ -1,6 +1,7 @@
 import arcade
 from core.utils.path_manager import PathManager as Pm
 from core.utils.vector_manager import VectorManager as Vm
+from core.cooldown_manager import CooldownManager
 from core.constance import *
 
 
@@ -30,11 +31,18 @@ class Cursor(arcade.Sprite):
         self.interact_radius = 50
         self.nearby_interactables = []
 
-    def on_update(self):
+
+        """Cooldowns"""
+        self.cd = CooldownManager()
+        self.cd.add("tick", 0.1)
+
+    def on_update(self, dt):
         """Events that happens every frame"""
         self.follow_mouse()
         self.update_state()
         self.update_input()
+
+        self.cd.tick_all(dt)
 
     def follow_mouse(self):
         """Always follow mouse position"""
@@ -57,24 +65,29 @@ class Cursor(arcade.Sprite):
                 obj.interact()
 
     def update_state(self):
-        """Update state based on what the cursor is touching"""
-        interactables = self.game.interactable_list
-        self.nearby_interactables = []
+        if self.cd.ready("tick"):
+            self.cd.reset("tick")
 
-        for obj in interactables:
-            if abs(self.player.center_x - obj.center_x) > self.interact_radius:
-                continue
-            if abs(self.player.center_y - obj.center_y) > self.interact_radius:
-                continue
+            print("tick")
 
-            distance = arcade.get_distance_between_sprites(self, obj)
-            if distance <= self.interact_radius:
-                self.nearby_interactables.append(obj)
+            """Update state based on what the cursor is touching"""
+            interactables = self.game.interactable_list
+            self.nearby_interactables = []
 
-        # After the loop
-        if self.nearby_interactables:
-            self.state = "interacting"
-        else:
-            self.state = "targeting"
+            for obj in interactables:
+                if abs(self.player.center_x - obj.center_x) > self.interact_radius:
+                    continue
+                if abs(self.player.center_y - obj.center_y) > self.interact_radius:
+                    continue
 
-        self.change_texture()
+                distance = arcade.get_distance_between_sprites(self, obj)
+                if distance <= self.interact_radius:
+                    self.nearby_interactables.append(obj)
+
+            # After the loop
+            if self.nearby_interactables:
+                self.state = "interacting"
+            else:
+                self.state = "targeting"
+
+            self.change_texture()

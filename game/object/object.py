@@ -70,6 +70,8 @@ class ObjectFactory:
             case "enemy":
                 print("spawned enemy")
                 return Enemy(game, data).spawn(position)
+            case "interactable":
+                return
 
     @staticmethod
     def spawn_enemy(game, position, id):

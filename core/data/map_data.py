@@ -26,10 +26,12 @@ TILE_MAPS = {
             "w..PP...s...s.........s....................w......C.....w...............................................w",
             "wwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwww"
         ],
-        "object": ["w.....",
-                   ".E....",
-                   "..B..w",
-                   "......"],
+        "object": [".........................",
+                   "...s.....................",
+                   ".S...s.wwwwwww...........",
+                   ".PPPPP.P.PP..P.E.........",
+                   ".P...s....E..E...........",
+                   ".P......................."],
 
         "spawn": "",
     }
@@ -58,7 +60,10 @@ TILE_TYPES = {
     "r": ["A", "obstacle", "rune_stone"],
     "B": ["G", "obstacle", "bush"],
     # Enemy
-    "E": ["G", "enemy", "slime"]
+    "E": ["G", "enemy", "slime"],
+
+    # Interactable
+    "C": ["G", "interactable", "chest"]
 }
 # ADD NEW OBJECTS HERE. note: do not give hitbox to obstacle that covers the whole tile --------------------------------
 """
@@ -101,13 +106,15 @@ TILE_DATA = {
         }
 
     },
-    "interactable": {},
+    "interactable": {
+        "chest": Pm.object_img("chest", "CommonChest.png")
+    },
 
     # DEBUG
     "enemy": {
         "slime": {
             "texture_path": Pm.img("enemy", "slime", "Slime.png"),
-            "hp": 20,
+            "hp": 50,
             "dmg": 2,
             "speed": 2
         }

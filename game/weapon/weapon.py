@@ -182,3 +182,4 @@ class Melee(Weapon):
             self.hit()
         if self.attacking:
             self.start_attack()
+
